@@ -1,0 +1,54 @@
+{
+    "bot_host": "https://v3.e2bot.online/bot/",
+    "queue_host": "http://127.0.0.1:8010/",
+    "encrypt_key": "fiBL_VPMpCfGmpcjYZKqcwGzvyXFcWXccFRI4nKErHw=",
+    "free_limit": 100,
+    "formats": {
+		"fb2": "Fb2 - для книг",
+		"mp3": "mp3 - для аудиокниг",
+		"epub": "Epub - для книг",
+		"cbz": "CBZ - для манги"
+	},
+    "demo": {
+		"booknet.com": {
+			"login":"elib.fb2.bot@gmail.com",
+			"password":"elib.fb2.bot123"
+		},
+		"booknet.ua": {
+			"login":"elib.fb2.bot@gmail.com",
+			"password":"elib.fb2.bot123"
+		},
+		"author.today": {
+			"login":"elib.fb2.bot@gmail.com",
+			"password":"elib.fb2.bot123"
+		},
+		"litres.ru": {
+			"login":"elib.fb2.bot@gmail.com",
+			"password":"elib.fb2.bot123"
+		},
+		"litnet.com": {
+			"login":"elib.fb2.bot@gmail.com",
+			"password":"elib.fb2.bot123"
+		},
+		"litgorod.ru": {
+			"login":"elib.fb2.bot@gmail.com",
+			"password":"elib.fb2.bot123"
+		},
+		"ranobelib.me": {
+			"login":"elib.fb2.bot@gmail.com",
+			"password":"elib.fb2.bot123"
+		},
+		"test-front.mangalib.me": {
+			"login":"elib.fb2.bot@gmail.com",
+			"password":"elib.fb2.bot123"
+		},
+		"mangalib.me": {
+			"login":"elib.fb2.bot@gmail.com",
+			"password":"elib.fb2.bot123"
+		},
+		"hentailib.me": {
+			"login":"elib.fb2.bot@gmail.com",
+			"password":"elib.fb2.bot123"
+		}
+	}
+}

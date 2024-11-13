@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/web/usage/app.css">
+	<script src="https://telegram.org/js/telegram-web-app.js"></script>
+	<script src="/web/usage/app.js?v=2" defer></script>
+</head>
+<body>
+	<div id="queue_stats">
+        <h1>Активные загрузки:</h1>
+        <div class="tasks">
+            {% for group in stats['running'] %}
+            {% if group['name'] in groups %}
+            {% if group['tasks'] %}
+            <table>
+                <thead>
+                    <tr>
+                        <th colspan="2">{{ groups[group['name']] }}</th>
+                    </tr>
+                    <tr>
+                        <th width="30%">Сайт</th>
+                        <th>Последний статус</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for task in group['tasks'] %}
+                    <tr>
+                        <td><a target="_blank" href="{{ task['url']|hideui }}">{{ task['site']|punydecode }}</a></td>
+                        <td>{{ task['last_status'] }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% endif %}
+            {% endif %}
+            {% endfor %}
+        </div>
+        <h1>Ожидают:</h1>
+        {% for group in stats['waiting'] %}
+        {% if group['name'] in groups %}
+        {% if group['tasks'] %}
+        <table>
+            <thead>
+                <tr>
+                    <th colspan="2">{{ groups[group['name']] }}</th>
+                </tr>
+                <tr>
+                    <th width="30%">Сайт</th>
+                    <th>Ссылка</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for task in group['tasks'] %}
+                <tr>
+                    <td><a target="_blank" href="{{ task['url']|hideui }}">{{ task['site']|punydecode }}</a></td>
+                    <td>{{ task['url']|hideui }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% endif %}
+        {% endif %}
+        {% endfor %}
+	</div>
+</body>
+</html>

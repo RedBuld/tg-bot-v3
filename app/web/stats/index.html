@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<script src="https://telegram.org/js/telegram-web-app.js"></script>
+	<link rel="stylesheet" href="/web/stats/app.css?v=1">
+</head>
+<body>
+	<div id="download_stats">
+		{% if stats['current_day']['elements'] %}
+		<table>
+			<thead>
+				<tr>
+					<th colspan="5">Статистика за сегодня</th>
+				</tr>
+				<tr>
+					<th>Сайт</th>
+					<th>Успешных скачиваний</th>
+					<th>Проваленных скачиваний</th>
+					<th>Скачаный размер</th>
+					<th>Накладные расходы</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for res in stats['current_day']['elements'] %}
+				<tr>
+					<td><a target="_blank" href="http://{{ res['site'] }}">{{ res['site']|punydecode }}</a></td>
+					<td>{{ res['success'] }}</td>
+					<td>{{ res['failure'] }}</td>
+					<td>{{ res['orig_size']|human_size }}</td>
+					<td>{{ res['oper_size']|human_size }}</td>
+				</tr>
+				{% endfor %}
+				<tr>
+					<td>Всего</td>
+					<td>{{ stats['current_day']['total']['success'] }}</td>
+					<td>{{ stats['current_day']['total']['failure'] }}</td>
+					<td>{{ stats['current_day']['total']['orig_size']|human_size }}</td>
+					<td>{{ stats['current_day']['total']['oper_size']|human_size }}</td>
+				</tr>
+			</tbody>
+		</table>
+		{% endif %}
+
+		{% if stats['previous_day']['elements'] %}
+		<table>
+			<thead>
+				<tr>
+					<th colspan="5">Статистика за вчера</th>
+				</tr>
+				<tr>
+					<th>Сайт</th>
+					<th>Успешных скачиваний</th>
+					<th>Проваленных скачиваний</th>
+					<th>Скачаный размер</th>
+					<th>Накладные расходы</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for res in stats['previous_day']['elements'] %}
+				<tr>
+					<td><a target="_blank" href="http://{{ res['site'] }}">{{ res['site']|punydecode }}</a></td>
+					<td>{{ res['success'] }}</td>
+					<td>{{ res['failure'] }}</td>
+					<td>{{ res['orig_size']|human_size }}</td>
+					<td>{{ res['oper_size']|human_size }}</td>
+				</tr>
+				{% endfor %}
+				<tr>
+					<td>Всего</td>
+					<td>{{ stats['previous_day']['total']['success'] }}</td>
+					<td>{{ stats['previous_day']['total']['failure'] }}</td>
+					<td>{{ stats['previous_day']['total']['orig_size']|human_size }}</td>
+					<td>{{ stats['previous_day']['total']['oper_size']|human_size }}</td>
+				</tr>
+			</tbody>
+		</table>
+		{% endif %}
+
+		{% if stats['current_month']['elements'] %}
+		<table>
+			<thead>
+				<tr>
+					<th colspan="5">Статистика за месяц</th>
+				</tr>
+				<tr>
+					<th>Сайт</th>
+					<th>Успешных скачиваний</th>
+					<th>Проваленных скачиваний</th>
+					<th>Скачаный размер</th>
+					<th>Накладные расходы</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for res in stats['current_month']['elements'] %}
+				<tr>
+					<td><a target="_blank" href="http://{{ res['site'] }}">{{ res['site']|punydecode }}</a></td>
+					<td>{{ res['success'] }}</td>
+					<td>{{ res['failure'] }}</td>
+					<td>{{ res['orig_size']|human_size }}</td>
+					<td>{{ res['oper_size']|human_size }}</td>
+				</tr>
+				{% endfor %}
+				<tr>
+					<td>Всего</td>
+					<td>{{ stats['current_month']['total']['success'] }}</td>
+					<td>{{ stats['current_month']['total']['failure'] }}</td>
+					<td>{{ stats['current_month']['total']['orig_size']|human_size }}</td>
+					<td>{{ stats['current_month']['total']['oper_size']|human_size }}</td>
+				</tr>
+			</tbody>
+		</table>
+		{% endif %}
+
+		{% if stats['current_year']['elements'] %}
+		<table>
+			<thead>
+				<tr>
+					<th colspan="5">Статистика за год</th>
+				</tr>
+				<tr>
+					<th>Сайт</th>
+					<th>Успешных скачиваний</th>
+					<th>Проваленных скачиваний</th>
+					<th>Скачаный размер</th>
+					<th>Накладные расходы</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for res in stats['current_year']['elements'] %}
+				<tr>
+					<td><a target="_blank" href="http://{{ res['site'] }}">{{ res['site']|punydecode }}</a></td>
+					<td>{{ res['success'] }}</td>
+					<td>{{ res['failure'] }}</td>
+					<td>{{ res['orig_size']|human_size }}</td>
+					<td>{{ res['oper_size']|human_size }}</td>
+				</tr>
+				{% endfor %}
+				<tr>
+					<td>Всего</td>
+					<td>{{ stats['current_year']['total']['success'] }}</td>
+					<td>{{ stats['current_year']['total']['failure'] }}</td>
+					<td>{{ stats['current_year']['total']['orig_size']|human_size }}</td>
+					<td>{{ stats['current_year']['total']['oper_size']|human_size }}</td>
+				</tr>
+			</tbody>
+		</table>
+		{% endif %}
+
+		{% if stats['previous_year']['elements'] %}
+		<table>
+			<thead>
+				<tr>
+					<th colspan="3">Статистика за прошлый год</th>
+				</tr>
+				<tr>
+					<th>Сайт</th>
+					<th>Успешных скачиваний</th>
+					<th>Проваленных скачиваний</th>
+					<th>Скачаный размер</th>
+					<th>Накладные расходы</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for res in stats['previous_year']['elements'] %}
+				<tr>
+					<td><a target="_blank" href="http://{{ res['site'] }}">{{ res['site']|punydecode }}</a></td>
+					<td>{{ res['success'] }}</td>
+					<td>{{ res['failure'] }}</td>
+					<td>{{ res['orig_size']|human_size }}</td>
+					<td>{{ res['oper_size']|human_size }}</td>
+				</tr>
+				{% endfor %}
+				<tr>
+					<td>Всего</td>
+					<td>{{ stats['previous_year']['total']['success'] }}</td>
+					<td>{{ stats['previous_year']['total']['failure'] }}</td>
+					<td>{{ stats['previous_year']['total']['orig_size']|human_size }}</td>
+					<td>{{ stats['previous_year']['total']['oper_size']|human_size }}</td>
+				</tr>
+			</tbody>
+		</table>
+		{% endif %}
+
+		<table>
+			<thead>
+				<tr>
+					<th colspan="5">Статистика всего</th>
+				</tr>
+				<tr>
+					<th>Сайт</th>
+					<th>Успешных скачиваний</th>
+					<th>Проваленных скачиваний</th>
+					<th>Скачаный размер</th>
+					<th>Накладные расходы</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td>Всего</td>
+					<td>{{ stats['total']['success'] }}</td>
+					<td>{{ stats['total']['failure'] }}</td>
+					<td>{{ stats['total']['orig_size']|human_size }}</td>
+					<td>{{ stats['total']['oper_size']|human_size }}</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</body>
+</html>
