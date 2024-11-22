@@ -8,6 +8,9 @@
 	<script src="/web/usage/app.js?v=2" defer></script>
 </head>
 <body>
+    {% if request.query_params['test'] %}
+    <pre>{{ stats['stats']|tojson }}</pre>
+    {% endif %}
 	<div id="queue_stats">
         <h1>Активные загрузки:</h1>
         <div class="tasks">

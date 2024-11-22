@@ -4,29 +4,160 @@ import aiohttp
 import ujson
 import traceback
 import logging
+import hashlib
 from aiohttp.client_exceptions import ClientError
 from typing import List, Dict, Any
-from asyncache import cached
-from cachetools import TTLCache
 from app import variables
 from app import schemas
 from app.configs import GC
+from app.objects import RD
 
 logger = logging.getLogger(__name__)
 
-class Interconnect():
+class Interconnect:
 
-    @cached(TTLCache(128, 60))
-    async def GetSiteData( self, site_name: str ) -> tuple[ bool, List[ str ], Dict[ str, List[ str ] ] ]:
-        async with aiohttp.ClientSession( json_serialize=ujson.dumps ) as session:
-            async with session.post( GC.queue_host + 'sites/check', json=schemas.SiteCheckRequest(site = site_name).model_dump(mode='json'), verify_ssl=False ) as response:
-                if response.status == 200:
-                    data = await response.json( loads=ujson.loads )
-                    res = schemas.SiteCheckResponse( **data )
-                    return res.allowed, res.parameters, res.formats
+    @staticmethod
+    async def GetSitesActive() -> List[ str ] | str:
+        cache_key = "cache_active_sites"
+        model = schemas.SiteListResponse
+        cached = await RD.get(cache_key)
+
+        if not cached:
+            _attempts = 0
+            while _attempts < 5:
+                try:
+                    async with aiohttp.ClientSession( json_serialize=ujson.dumps ) as session:
+                        async with session.post( GC.queue_host + 'sites/active', verify_ssl=False ) as response:
+                            if response.status == 200:
+                                data = await response.json( loads=ujson.loads )
+                                model = model.model_validate( data )
+                                _attempts = 5
+                except:
+                    traceback.print_exc()
+                    _attempts+=1
+                    await asyncio.sleep(5)
+
+            cached = model.model_dump_json()
+            await RD.setex(cache_key, 60, cached)
+        else:
+            model = model.model_validate_json( cached )
+
+        return model.sites
+
+    @staticmethod
+    async def GetSitesWithAuth() -> List[str]:
+        cache_key = "cache_sites_with_auth"
+        model = schemas.SiteListResponse
+        cached = await RD.get(cache_key)
+
+        if not cached:
+            _attempts = 0
+            while _attempts < 5:
+                try:
+                    async with aiohttp.ClientSession( json_serialize=ujson.dumps ) as session:
+                        async with session.post( GC.queue_host + 'sites/auths', verify_ssl=False ) as response:
+                            if response.status == 200:
+                                data = await response.json( loads=ujson.loads )
+                                model = model.model_validate( data )
+                                _attempts = 5
+                except:
+                    traceback.print_exc()
+                    _attempts+=1
+                    await asyncio.sleep(5)
+
+            cached = model.model_dump_json()
+            await RD.setex(cache_key, 60, cached)
+        else:
+            model = model.model_validate_json( cached )
+
+        return model.sites
+
+    @staticmethod
+    async def GetSiteData( site_name: str ) -> tuple[ bool, List[ str ], Dict[ str, List[ str ] ] ] | str:
+        cache_key = f"cache_sites_data_{site_name}"
+        model = schemas.SiteCheckResponse
+        cached = await RD.get(cache_key)
+
+        if not cached:
+            _attempts = 0
+            while _attempts < 5:
+                try:
+                    async with aiohttp.ClientSession( json_serialize=ujson.dumps ) as session:
+                        async with session.post( GC.queue_host + 'sites/check', json=schemas.SiteCheckRequest(site = site_name).model_dump(mode='json'), verify_ssl=False ) as response:
+                            if response.status == 200:
+                                data = await response.json( loads=ujson.loads )
+                                model = model.model_validate( data )
+                                _attempts = 5
+                except:
+                    traceback.print_exc()
+                    _attempts+=1
+                    await asyncio.sleep(5)
+
+            cached = model.model_dump_json()
+            await RD.setex(cache_key, 60, cached)
+        else:
+            model = model.model_validate_json( cached )
+
+        return model.allowed, model.parameters, model.formats
+
+    @staticmethod
+    async def GetUsage() -> Dict[ str, Any ]:
+        cache_key = "cache_usage"
+        cached = await RD.get(cache_key)
+
+        if not cached:
+            stats = {}
+            _attempts = 0
+            while _attempts < 5:
+                try:
+                    async with aiohttp.ClientSession(json_serialize=ujson.dumps) as session:
+                        async with session.get( GC.queue_host + 'export/queue', verify_ssl=False ) as response:
+                            if response.status == 200:
+                                _attempts = 5
+                                stats = await response.json( loads=ujson.loads )
+                except:
+                    _attempts+=1
+                    await asyncio.sleep(1)
+            
+            cached = ujson.dumps(stats)
+            await RD.setex(cache_key, 5, cached)
+        else:
+            stats = ujson.loads(cached)
+
+        return stats
+
+    @staticmethod
+    async def GetStats() -> Dict[ str, Any ]:
+        cache_key = "cache_stats"
+        cached = await RD.get(cache_key)
+
+        if not cached:
+            stats = {}
+            _attempts = 0
+            while _attempts < 5:
+                try:
+                    async with aiohttp.ClientSession(json_serialize=ujson.dumps) as session:
+                        async with session.get( GC.queue_host + 'export/stats', verify_ssl=False ) as response:
+                            if response.status == 200:
+                                _attempts = 5
+                                stats = await response.json( loads=ujson.loads )
+                except:
+                    _attempts+=1
+                    await asyncio.sleep(1)
+            
+            cached = ujson.dumps(stats)
+            await RD.setex(cache_key, 5, cached)
+        else:
+            stats = ujson.loads(cached)
+
+        return stats
+    
+
+    ######################
 
 
-    async def InitDownload( self, request: schemas.DownloadRequest ) -> int | str:
+    @staticmethod
+    async def InitDownload( request: schemas.DownloadRequest ) -> int | str:
         try:
             async with aiohttp.ClientSession( json_serialize=ujson.dumps ) as session:
                 async with session.post( GC.queue_host + 'download/new', json=request.model_dump(mode='json'), verify_ssl=False ) as response:
@@ -42,7 +173,8 @@ class Interconnect():
             return str(e)
 
 
-    async def CancelDownload( self, request: schemas.DownloadCancelRequest ) -> bool | str:
+    @staticmethod
+    async def CancelDownload( request: schemas.DownloadCancelRequest ) -> bool | str:
         try:
             async with aiohttp.ClientSession(json_serialize=ujson.dumps) as session:
                 async with session.post( GC.queue_host + 'download/cancel', json=request.model_dump(mode='json'), verify_ssl=False ) as response:
@@ -53,7 +185,8 @@ class Interconnect():
             return str(e)
 
 
-    async def ClearDownloadFiles( self, request: schemas.DownloadClearRequest ) -> None:
+    @staticmethod
+    async def ClearDownloadFiles( request: schemas.DownloadClearRequest ) -> None:
         _attempts = 0
         while _attempts < 5:
             try:
@@ -68,3 +201,55 @@ class Interconnect():
                 traceback.print_exc()
                 _attempts+=1
                 await asyncio.sleep(5)
+
+    @staticmethod
+    async def CheckLink( link: str ) -> bool:
+        cache_key = "check_link_" + str( hashlib.md5( link.encode('utf-8') ).hexdigest() )
+        allowed = await RD.getex(cache_key)
+
+        async def _check_site(session: aiohttp.ClientSession, link: str) -> int|str:
+            async with session.get( link, verify_ssl=False ) as response:
+                if response.status == 404:
+                    return 0
+                else:
+                    text = await response.text()
+                    url = str(response.real_url)
+                    if 'mature?path=' in url:
+                        return url
+                    if 'заблокирована на территории РФ' in text:
+                        return 0
+                    else:
+                        return 1
+
+        async def _rulate_mature(session: aiohttp.ClientSession, link: str) -> int:
+            path = link.split('mature?path=')[1]
+            async with session.post( link, verify_ssl=False, data={"path":path,"ok":"Да"} ) as response:
+                if response.status == 404:
+                    return 0
+                else:
+                    text = await response.text()
+                    if 'заблокирована на территории РФ' in text:
+                        return 0
+                    else:
+                        return 1
+
+        if allowed == None:
+            _attempts = 0
+            async with aiohttp.ClientSession() as session:
+                while _attempts < 5:
+                    try:
+                        allowed = await _check_site(session, link)
+                        if type(allowed) == str:
+                            test = await _rulate_mature(session, allowed)
+                            allowed = await _check_site(session, link)
+                        _attempts = 5
+                    except:
+                        traceback.print_exc()
+                        _attempts+=1
+                        await asyncio.sleep(5)
+            await RD.setex(cache_key, 3600, allowed)
+        else:
+            allowed = int(allowed)
+
+        allowed = allowed == 1
+        return allowed

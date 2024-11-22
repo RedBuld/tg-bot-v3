@@ -1,7 +1,6 @@
 import logging
 import idna
 from typing import Any
-from python_event_bus import EventBus
 from aiogram import Dispatcher, Router, F, types
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
@@ -14,7 +13,8 @@ logger = logging.getLogger( __name__ )
 
 class ExistentAuthController:
 
-    async def existent_auth_cancel( self, callback_query: types.CallbackQuery ):
+    @staticmethod
+    async def existent_auth_cancel( callback_query: types.CallbackQuery ):
         await callback_query.answer()
 
         try:
@@ -22,7 +22,8 @@ class ExistentAuthController:
         except:
             pass
     
-    async def existent_auths( self, message: types.Message ):
+    @staticmethod
+    async def existent_auths( message: types.Message ):
         user_id = message.from_user.id
 
         sites = await DB.getUserAuthedSites( user_id )
@@ -43,7 +44,8 @@ class ExistentAuthController:
             await BOT.send_message( chat_id=message.chat.id, text='Нет сохраненных доступов', reply_markup=builder.as_markup() )
 
 
-    async def existent_auths_map( self, callback_query: types.CallbackQuery ) -> None:
+    @staticmethod
+    async def existent_auths_map( callback_query: types.CallbackQuery ) -> None:
         await callback_query.answer()
 
         user_id = callback_query.from_user.id
@@ -55,14 +57,14 @@ class ExistentAuthController:
         if len(data) == 2:
             site = data[1]
             if site == 'all':
-                await self._all_sites( user_id=user_id, chat_id=chat_id, message_id=message_id )
+                await ExistentAuthController.__all_sites( user_id=user_id, chat_id=chat_id, message_id=message_id )
             else:
-                await self._all_site_logins( user_id=user_id, chat_id=chat_id, message_id=message_id, site=site )
+                await ExistentAuthController.__all_site_logins( user_id=user_id, chat_id=chat_id, message_id=message_id, site=site )
 
         elif len(data) == 3:
             site = data[1]
             auth_id = int(data[2])
-            await self._single_site_login( user_id=user_id, chat_id=chat_id, message_id=message_id, site=site, auth_id=auth_id )
+            await ExistentAuthController.__single_site_login( user_id=user_id, chat_id=chat_id, message_id=message_id, site=site, auth_id=auth_id )
 
         elif len(data) == 4:
             site = data[1]
@@ -70,11 +72,12 @@ class ExistentAuthController:
             action = data[3]
             if action == 'delete':
                 await DB.deleteUserAuth( user_id=user_id, auth_id=auth_id )
-                await self._all_site_logins( user_id=user_id, chat_id=chat_id, message_id=message_id, site=site )
+                await ExistentAuthController.__all_site_logins( user_id=user_id, chat_id=chat_id, message_id=message_id, site=site )
 
     #
 
-    async def _all_sites( self, user_id: int, chat_id: int, message_id: int ) -> None:
+    @staticmethod
+    async def __all_sites( user_id: int, chat_id: int, message_id: int ) -> None:
         sites = await DB.getUserAuthedSites( user_id )
 
         if sites:
@@ -93,7 +96,8 @@ class ExistentAuthController:
             await BOT.edit_message_text( chat_id=chat_id, message_id=message_id, text='Нет сохраненных доступов', reply_markup=builder.as_markup() )
 
 
-    async def _all_site_logins( self, user_id: int, chat_id: int, message_id: int, site: str ) -> None:
+    @staticmethod
+    async def __all_site_logins( user_id: int, chat_id: int, message_id: int, site: str ) -> None:
 
         uas = await DB.getUserAuthsForSite( user_id=user_id, site=site )
 
@@ -113,7 +117,8 @@ class ExistentAuthController:
         await BOT.edit_message_text( chat_id=chat_id, message_id=message_id, text=text, reply_markup=builder.as_markup() )
 
 
-    async def _single_site_login( self, user_id: int, chat_id: int, message_id: int, site: str, auth_id: int ) -> None:
+    @staticmethod
+    async def __single_site_login( user_id: int, chat_id: int, message_id: int, site: str, auth_id: int ) -> None:
 
         ua = await DB.getUserAuth( user_id=user_id, auth_id=auth_id )
 

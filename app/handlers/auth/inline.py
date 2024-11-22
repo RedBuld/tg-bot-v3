@@ -2,7 +2,6 @@ import asyncio
 import logging
 import traceback
 from typing import Any
-from python_event_bus import EventBus
 from aiogram import types
 from aiogram.fsm.context import FSMContext
 from aiogram.utils.keyboard import InlineKeyboardBuilder
@@ -14,13 +13,8 @@ logger = logging.getLogger( __name__ )
 
 class InlineAuthController:
 
-    def __init__(self) -> None:
-        EventBus.subscribe("iac_init", self._event_init)
-
-    def _event_init( self, *args ):
-        asyncio.create_task( self._init(*args) )
-
-    async def _init( self, callback_query: types.CallbackQuery, user: models.User, site: str, state: FSMContext ) -> None:
+    @staticmethod
+    async def init( callback_query: types.CallbackQuery, user: models.User, site: str, state: FSMContext ) -> None:
         await state.set_state(variables.AuthForm.login)
 
         builder = InlineKeyboardBuilder()
@@ -32,7 +26,8 @@ class InlineAuthController:
         msg = await BOT.send_message( chat_id=callback_query.message.chat.id, text=f'Отправьте сообщением логин')
         await state.update_data(last_message=msg.message_id)
 
-    async def inline_auth_login( self, message: types.Message, state: FSMContext ) -> None:
+    @staticmethod
+    async def inline_auth_login( message: types.Message, state: FSMContext ) -> None:
 
         login = message.text.strip()
 
@@ -50,7 +45,8 @@ class InlineAuthController:
             msg = await BOT.send_message( chat_id=message.chat.id, text=f'Отправьте сообщением пароль' )
             await state.update_data(last_message=msg.message_id)
 
-    async def inline_auth_password( self, message: types.Message, state: FSMContext ) -> None:
+    @staticmethod
+    async def inline_auth_password( message: types.Message, state: FSMContext ) -> None:
 
         password = message.text #.strip()
 

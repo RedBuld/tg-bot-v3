@@ -18,19 +18,28 @@ format_select.addEventListener('change',function()
 
 function maybe_toggle_fields()
 {
-   if(format_select.value == 'mp3')
+   if(start_input)
    {
       var start_input_row = start_input.closest('.form-row');
+   }
+   if(end_input)
+   {
+      var end_input_row = end_input.closest('.form-row');
+   }
+   if(images_checkbox)
+   {
+      var images_checkbox_row = images_checkbox.closest('.form-row');
+   }
+   if(format_select.value == 'mp3')
+   {
       if(start_input_row)
       {
          start_input_row.classList.add('hidden');
       }
-      var end_input_row = end_input.closest('.form-row');
       if(end_input_row)
       {
          end_input_row.classList.add('hidden');
       }
-      var images_checkbox_row = images_checkbox.closest('.form-row');
       if(images_checkbox_row)
       {
          images_checkbox_row.classList.add('hidden');
@@ -38,17 +47,14 @@ function maybe_toggle_fields()
    }
    else
    {
-      var start_input_row = start_input.closest('.form-row');
       if(start_input_row)
       {
          start_input_row.classList.remove('hidden');
       }
-      var end_input_row = end_input.closest('.form-row');
       if(end_input_row)
       {
          end_input_row.classList.remove('hidden');
       }
-      var images_checkbox_row = images_checkbox.closest('.form-row');
       if(images_checkbox_row)
       {
          images_checkbox_row.classList.remove('hidden');
@@ -73,6 +79,8 @@ Telegram.WebApp.onEvent('mainButtonClicked', function(){
    {
       temp[ pair[0] ] = pair[1];
    }
+
+   console.log(temp);
 
    if( 'start' in temp )
    {
@@ -104,7 +112,7 @@ Telegram.WebApp.onEvent('mainButtonClicked', function(){
       form['cover'] = true;
    }
 
-   if( 'force_images' in payload)
+   if( 'force_images' in payload && payload['force_images'] )
    {
       form['images'] = true;
    }

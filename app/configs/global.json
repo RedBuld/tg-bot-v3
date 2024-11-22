@@ -1,24 +1,32 @@
 {
-    "bot_host": "https://v3.e2bot.online/bot/",
+    "bot_id": "test",
+	"bot_host": "https://v3.e2bot.online/bot/",
     "queue_host": "http://127.0.0.1:8010/",
-    "encrypt_key": "fiBL_VPMpCfGmpcjYZKqcwGzvyXFcWXccFRI4nKErHw=",
     "free_limit": 100,
+	"admins": [470328529],
     "formats": {
 		"fb2": "Fb2 - для книг",
 		"mp3": "mp3 - для аудиокниг",
 		"epub": "Epub - для книг",
 		"cbz": "CBZ - для манги"
 	},
+	"groups": {
+        "books": "Книги",
+        "manga": "Манга",
+        "ranobe": "Ранобэ",
+        "audiobooks": "Аудиокниги",
+        "pdf": "PDF-книги"
+    },
     "demo": {
+		"author.today": {
+			"login":"elib.fb2.bot@gmail.com",
+			"password":"elib.fb2.bot123"
+		},
 		"booknet.com": {
 			"login":"elib.fb2.bot@gmail.com",
 			"password":"elib.fb2.bot123"
 		},
 		"booknet.ua": {
-			"login":"elib.fb2.bot@gmail.com",
-			"password":"elib.fb2.bot123"
-		},
-		"author.today": {
 			"login":"elib.fb2.bot@gmail.com",
 			"password":"elib.fb2.bot123"
 		},

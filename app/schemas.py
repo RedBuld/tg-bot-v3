@@ -16,9 +16,9 @@ class SiteCheckRequest(BaseModel):
     site:       str
 
 class SiteCheckResponse(BaseModel):
-    allowed:    bool
-    parameters: List[ str ]
-    formats:    Dict[ str, List[ str ] ]
+    allowed:    bool = False
+    parameters: List[ str ] = []
+    formats:    Dict[ str, List[ str ] ] = {}
 
 class SiteListResponse(BaseModel):
     sites:      List[ str ]

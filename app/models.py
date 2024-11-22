@@ -1,39 +1,35 @@
-import ujson
 from datetime import datetime
-from sqlalchemy.ext.asyncio import AsyncAttrs
 from sqlalchemy import Integer, BigInteger, Boolean, String, Text, UniqueConstraint, Date, DateTime, ForeignKey
 from sqlalchemy.orm import mapped_column
-from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import Mapped
-from sqlalchemy.orm import relationship
 
-class Base(AsyncAttrs, DeclarativeBase):
-    pass
+Base = declarative_base()
 
 class User(Base):
     __tablename__ = 'users'
 
-    id: Mapped[int] =            mapped_column( 'id', BigInteger, primary_key=True )
-    username: Mapped[str] =      mapped_column( 'username', String(100), nullable=False )
-    setuped: Mapped[dict] =      mapped_column( 'setuped', Boolean, default=False )
-    ask_share: Mapped[dict] =    mapped_column( 'ask_share', Boolean, default=True )
-    interact_mode: Mapped[int] = mapped_column( 'interact_mode', Integer, default=0 )
-    format: Mapped[dict] =       mapped_column( 'format', String(20), default='fb2' )
-    cover: Mapped[dict] =        mapped_column( 'cover', Boolean, default=True )
-    images: Mapped[dict] =       mapped_column( 'images', Boolean, default=True )
+    id: Mapped[int] =              mapped_column( 'id', BigInteger, primary_key=True )
+    username: Mapped[str] =        mapped_column( 'username', String(100), nullable=False )
+    setuped: Mapped[dict] =        mapped_column( 'setuped', Boolean, default=False )
+    ask_share: Mapped[dict] =      mapped_column( 'ask_share', Boolean, default=True )
+    interact_mode: Mapped[int] =   mapped_column( 'interact_mode', Integer, default=0 )
+    format: Mapped[dict] =         mapped_column( 'format', String(20), default='fb2' )
+    cover: Mapped[dict] =          mapped_column( 'cover', Boolean, default=True )
+    images: Mapped[dict] =         mapped_column( 'images', Boolean, default=True )
 
 class UserStat(Base):
     __tablename__ = 'users_stats'
     __table_args__ = ( UniqueConstraint("user_id", "site", "day", name="user_site_day_index"), )
 
-    id: Mapped[int] =        mapped_column( 'id', BigInteger, primary_key=True )
-    user_id: Mapped[int] =   mapped_column( 'user_id', BigInteger, nullable=False, index=True )
-    site: Mapped[str] =      mapped_column( 'site', String(100), nullable=False )
-    day: Mapped[datetime] =  mapped_column( 'day', Date, default=datetime.today )
-    success: Mapped[int] =   mapped_column( 'success', BigInteger, default=1 )
-    failure: Mapped[int] =   mapped_column( 'failure', BigInteger, default=1 )
-    orig_size: Mapped[int] = mapped_column( 'orig_size', BigInteger, default=0 )
-    oper_size: Mapped[int] = mapped_column( 'oper_size', BigInteger, default=0 )
+    id: Mapped[int] =              mapped_column( 'id', BigInteger, primary_key=True )
+    user_id: Mapped[int] =         mapped_column( 'user_id', BigInteger, nullable=False, index=True )
+    site: Mapped[str] =            mapped_column( 'site', String(100), nullable=False )
+    day: Mapped[datetime] =        mapped_column( 'day', Date, default=datetime.today )
+    success: Mapped[int] =         mapped_column( 'success', BigInteger, default=1 )
+    failure: Mapped[int] =         mapped_column( 'failure', BigInteger, default=1 )
+    orig_size: Mapped[int] =       mapped_column( 'orig_size', BigInteger, default=0 )
+    oper_size: Mapped[int] =       mapped_column( 'oper_size', BigInteger, default=0 )
 
 class UserAuth(Base):
 	__tablename__ = 'users_auths'
@@ -55,6 +51,7 @@ class InlineDownloadRequest(Base):
 	__tablename__ = 'inline_download_requests'
 
 	id: Mapped[int] =              mapped_column( 'id', BigInteger, primary_key=True )
+	bot_id: Mapped[str] =          mapped_column( 'bot_id', String(5), nullable=False, index=True )
 	user_id: Mapped[int] =         mapped_column( 'user_id', BigInteger, nullable=False, index=True )
 	chat_id: Mapped[int] =         mapped_column( 'chat_id', BigInteger, nullable=False, index=True )
 	message_id: Mapped[int] =      mapped_column( 'message_id', BigInteger, nullable=True, index=True )
@@ -79,8 +76,8 @@ class ACL(Base):
 	__tablename__ = 'acl'
 	__table_args__ = ( UniqueConstraint("user_id", "premium", name="user_premium_index"), UniqueConstraint("user_id", "banned", name="user_banned_index") )
 
-	user_id: Mapped[int] =    mapped_column( 'user_id', BigInteger, primary_key=True, nullable=False, index=True )
-	premium: Mapped[bool] =   mapped_column( 'premium', Boolean, default=False )
-	banned: Mapped[bool] =    mapped_column( 'banned', Boolean, default=False )
-	reason: Mapped[str] =     mapped_column( 'reason', Text )
-	until: Mapped[datetime] = mapped_column( 'until', DateTime, default=datetime.now )
+	user_id: Mapped[int] =         mapped_column( 'user_id', BigInteger, primary_key=True, nullable=False, index=True )
+	premium: Mapped[bool] =        mapped_column( 'premium', Boolean, default=False )
+	banned: Mapped[bool] =         mapped_column( 'banned', Boolean, default=False )
+	reason: Mapped[str] =          mapped_column( 'reason', Text )
+	until: Mapped[datetime] =      mapped_column( 'until', DateTime, default=datetime.now )

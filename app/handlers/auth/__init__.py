@@ -2,7 +2,6 @@ import idna
 import logging
 import ujson
 import aiohttp
-from python_event_bus import EventBus
 from aiogram import Dispatcher, Router, F, types
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
@@ -10,22 +9,16 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 from app import variables, schemas
 from app.configs import GC
 from app.objects import DB, RD, BOT
+from app.classes.interconnect import Interconnect
+from app.handlers.auth.inline import InlineAuthController
+from app.handlers.auth.window import WindowAuthController
 
 logger = logging.getLogger( __name__ )
 
 class AuthController:
-    
-    async def _get_sites_with_auth( self ) -> bool:
-        async with aiohttp.ClientSession( json_serialize=ujson.dumps ) as session:
-            async with session.post( GC.queue_host + 'sites/auths', verify_ssl=False ) as response:
-                if response.status == 200:
-                    data = await response.json( loads=ujson.loads )
-                    res = schemas.SiteListResponse( **data )
-                    return res.sites
-    
-    #
-    
-    async def auth_cancel( self, callback_query: types.CallbackQuery, state: FSMContext ):
+        
+    @staticmethod
+    async def auth_cancel( callback_query: types.CallbackQuery, state: FSMContext ):
         await callback_query.answer()
 
         auth = await state.get_data()
@@ -48,13 +41,14 @@ class AuthController:
             pass
 
 
-    async def auth_init( self, message: types.Message, state: FSMContext ):
+    @staticmethod
+    async def auth_init( message: types.Message, state: FSMContext ):
 
         actual_state = await state.get_state()
         if actual_state and actual_state.startswith( 'AuthForm' ):
             await BOT.send_message( chat_id=message.chat.id, text="Отмените или завершите предыдущую авторизацию" )
         
-        sites_with_auth = await self._get_sites_with_auth()
+        sites_with_auth = await Interconnect.GetSitesWithAuth()
 
         if len(sites_with_auth) > 0:
             builder = InlineKeyboardBuilder()
@@ -73,7 +67,8 @@ class AuthController:
             await BOT.send_message( chat_id=message.chat.id, text="Нет сайтов доступных для авторизации", reply_markup=None )
 
 
-    async def auth_setup_site( self, callback_query: types.CallbackQuery, state: FSMContext ) -> None:
+    @staticmethod
+    async def auth_setup_site( callback_query: types.CallbackQuery, state: FSMContext ) -> None:
         await callback_query.answer()
 
         site = callback_query.data.split('auth:')[1]
@@ -84,11 +79,11 @@ class AuthController:
             await BOT.send_message( chat_id=callback_query.message.chat.id, text="Завершите настройку" )
             return
 
-        if user.interact_mode == 0:
+        if user.interact_mode == 0 or not GC.bot_host:
             await state.update_data(site=site)
-            EventBus.call("iac_init", callback_query, user, site, state)
+            await InlineAuthController.init( callback_query, user, site, state )
             return
         elif user.interact_mode == 1:
             await state.clear()
-            EventBus.call("wac_init", callback_query, user, site)
+            await WindowAuthController.init( callback_query, user, site )
             return

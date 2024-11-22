@@ -13,7 +13,8 @@ logger = logging.getLogger( __name__ )
 
 class AccountSetupController:
 
-    async def start_command( self, message: types.Message ) -> None:
+    @staticmethod
+    async def start_command( message: types.Message ) -> None:
 
         if message.from_user.is_bot != False:
             return
@@ -43,24 +44,22 @@ class AccountSetupController:
             return await BOT.send_message( chat_id=message.chat.id, text="Ошибка соединения с БД. Попробуйте позднее" )
 
         if not user:
-            logger.info('\n\n\nstart')
-            logger.info(message)
-            logger.info('\n\n\n')
             return await BOT.send_message( chat_id=message.chat.id, text="Ошибка: пользователь не найден, нажмите /start" )
 
-        uname = GC.__escape_md__(uname)
-        text = f"Привет, {uname}\. Проведем настройку\?"
+        text = f"Привет, {uname}. Проведем настройку?"
         if not user.setuped:
-            text += "\n\n_В первый раз необходимо завершить настройку до конца_"
+            text += "\n\n<em>В первый раз необходимо завершить настройку до конца</em>"
 
         builder = InlineKeyboardBuilder()
         builder.button( text="Да", callback_data=f"setup:start" )
-        builder.button( text="Нет", callback_data=f"setup:cancel" )
+        if user.setuped:
+            builder.button( text="Нет", callback_data=f"setup:cancel" )
         builder.adjust(1, repeat=True)
 
-        await BOT.send_message( chat_id=message.chat.id, text=text, parse_mode='MarkdownV2', reply_markup=builder.as_markup() )
+        await BOT.send_message( chat_id=message.chat.id, text=text, parse_mode='HTML', reply_markup=builder.as_markup() )
     
-    async def setup_command( self, message: types.Message ) -> None:
+    @staticmethod
+    async def setup_command( message: types.Message ) -> None:
 
         text = "Что настроим?"
 
@@ -77,7 +76,8 @@ class AccountSetupController:
     # callbacks
 
 
-    async def account_setup_cancel( self, callback_query: types.CallbackQuery ) -> None:
+    @staticmethod
+    async def account_setup_cancel( callback_query: types.CallbackQuery ) -> None:
         await callback_query.answer()
 
         try:
@@ -86,7 +86,8 @@ class AccountSetupController:
             await BOT.send_message( chat_id=callback_query.message.chat.id, reply_to_message_id=callback_query.message.message_id, text="Ошибка: Не могу удалить сообщение" )
 
 
-    async def account_setup_start( self, callback_query: types.CallbackQuery ) -> None:
+    @staticmethod
+    async def account_setup_start( callback_query: types.CallbackQuery ) -> None:
         await callback_query.answer()
 
         try:
@@ -94,10 +95,11 @@ class AccountSetupController:
         except:
             await BOT.send_message( chat_id=callback_query.message.chat.id, reply_to_message_id=callback_query.message.message_id, text="Ошибка: Не могу удалить сообщение" )
         
-        await self._setup_mode_start( callback_query.message.chat.id, callback_query.from_user.id )
+        await AccountSetupController.__setup_mode_start( callback_query.message.chat.id, callback_query.from_user.id )
 
 
-    async def account_setup_mode( self, callback_query: types.CallbackQuery ) -> None:
+    @staticmethod
+    async def account_setup_mode( callback_query: types.CallbackQuery ) -> None:
         await callback_query.answer()
 
         try:
@@ -105,10 +107,11 @@ class AccountSetupController:
         except:
             await BOT.send_message( chat_id=callback_query.message.chat.id, reply_to_message_id=callback_query.message.message_id, text="Ошибка: Не могу удалить сообщение" )
 
-        await self._setup_mode_start( callback_query.message.chat.id, callback_query.from_user.id )
+        await AccountSetupController.__setup_mode_start( callback_query.message.chat.id, callback_query.from_user.id )
 
 
-    async def account_setup_format( self, callback_query: types.CallbackQuery ) -> None:
+    @staticmethod
+    async def account_setup_format( callback_query: types.CallbackQuery ) -> None:
         await callback_query.answer()
 
         try:
@@ -116,10 +119,11 @@ class AccountSetupController:
         except:
             await BOT.send_message( chat_id=callback_query.message.chat.id, reply_to_message_id=callback_query.message.message_id, text="Ошибка: Не могу удалить сообщение" )
 
-        await self._setup_format_start( callback_query.message.chat.id, callback_query.from_user.id )
+        await AccountSetupController.__setup_format_start( callback_query.message.chat.id, callback_query.from_user.id )
 
 
-    async def account_setup_cover( self, callback_query: types.CallbackQuery ) -> None:
+    @staticmethod
+    async def account_setup_cover( callback_query: types.CallbackQuery ) -> None:
         await callback_query.answer()
 
         try:
@@ -127,10 +131,11 @@ class AccountSetupController:
         except:
             await BOT.send_message( chat_id=callback_query.message.chat.id, reply_to_message_id=callback_query.message.message_id, text="Ошибка: Не могу удалить сообщение" )
 
-        await self._setup_cover_start( callback_query.message.chat.id, callback_query.from_user.id )
+        await AccountSetupController.__setup_cover_start( callback_query.message.chat.id, callback_query.from_user.id )
 
 
-    async def account_setup_images( self, callback_query: types.CallbackQuery ) -> None:
+    @staticmethod
+    async def account_setup_images( callback_query: types.CallbackQuery ) -> None:
         await callback_query.answer()
 
         try:
@@ -138,13 +143,14 @@ class AccountSetupController:
         except:
             await BOT.send_message( chat_id=callback_query.message.chat.id, reply_to_message_id=callback_query.message.message_id, text="Ошибка: Не могу удалить сообщение" )
 
-        await self._setup_images_start( callback_query.message.chat.id, callback_query.from_user.id )
+        await AccountSetupController.__setup_images_start( callback_query.message.chat.id, callback_query.from_user.id )
 
 
     # savers
 
 
-    async def account_setup_mode_save( self, callback_query: types.CallbackQuery ) -> None:
+    @staticmethod
+    async def account_setup_mode_save( callback_query: types.CallbackQuery ) -> None:
         await callback_query.answer()
 
         try:
@@ -179,12 +185,13 @@ class AccountSetupController:
             return await BOT.send_message( chat_id=callback_query.message.chat.id, text="Ошибка: пользователь не найден, нажмите /start" )
         
         if not user.setuped:
-            await self._setup_format_start( callback_query.message.chat.id, callback_query.from_user.id )
+            await AccountSetupController.__setup_format_start( callback_query.message.chat.id, callback_query.from_user.id )
         else:
             return await BOT.send_message( chat_id=callback_query.message.chat.id, text="Сохранен режим взаимодействия: " + getattr(InteractionModes,_mode) )
 
 
-    async def account_setup_format_save( self, callback_query: types.CallbackQuery ) -> None:
+    @staticmethod
+    async def account_setup_format_save( callback_query: types.CallbackQuery ) -> None:
         await callback_query.answer()
 
         try:
@@ -208,12 +215,13 @@ class AccountSetupController:
             return await BOT.send_message( chat_id=callback_query.message.chat.id, text="Ошибка соединения с БД. Попробуйте позднее" )
 
         if not user.setuped:
-            await self._setup_cover_start( callback_query.message.chat.id, callback_query.from_user.id )
+            await AccountSetupController.__setup_cover_start( callback_query.message.chat.id, callback_query.from_user.id )
         else:
             return await BOT.send_message( chat_id=callback_query.message.chat.id, text="Сохранен формат по умолчанию: " + user.format )
 
 
-    async def account_setup_cover_save( self, callback_query: types.CallbackQuery ) -> None:
+    @staticmethod
+    async def account_setup_cover_save( callback_query: types.CallbackQuery ) -> None:
         await callback_query.answer()
 
         try:
@@ -241,12 +249,13 @@ class AccountSetupController:
             return await BOT.send_message( chat_id=callback_query.message.chat.id, text="Ошибка соединения с БД. Попробуйте позднее" )
 
         if not user.setuped:
-            await self._setup_images_start( callback_query.message.chat.id, callback_query.from_user.id )
+            await AccountSetupController.__setup_images_start( callback_query.message.chat.id, callback_query.from_user.id )
         else:
             return await BOT.send_message( chat_id=callback_query.message.chat.id, text="Скачивание обложек по умолчанию: " + ('Да' if user.cover else 'Нет') )
 
 
-    async def account_setup_images_save( self, callback_query: types.CallbackQuery ) -> None:
+    @staticmethod
+    async def account_setup_images_save( callback_query: types.CallbackQuery ) -> None:
         await callback_query.answer()
 
         try:
@@ -289,7 +298,8 @@ class AccountSetupController:
     # renderers
 
 
-    async def _setup_mode_start( self, chat_id: int, user_id: int ) -> None:
+    @staticmethod
+    async def __setup_mode_start( chat_id: int, user_id: int ) -> None:
         try:
             user = await asyncio.wait_for( DB.getUser( user_id ), 5 )
         except TimeoutError as e:
@@ -302,13 +312,15 @@ class AccountSetupController:
 
         builder = InlineKeyboardBuilder()
         builder.button( text=InteractionModes.inline, callback_data=f"setup:mode:inline" )
-        builder.button( text=InteractionModes.windowed, callback_data=f"setup:mode:windowed" )
+        if GC.bot_host:
+            builder.button( text=InteractionModes.windowed, callback_data=f"setup:mode:windowed" )
         builder.adjust(1, repeat=True)
 
         await BOT.send_photo( chat_id=chat_id, photo=types.FSInputFile( image ), caption=text, reply_markup=builder.as_markup() )
 
 
-    async def _setup_format_start( self, chat_id: int, user_id: int ) -> None:
+    @staticmethod
+    async def __setup_format_start( chat_id: int, user_id: int ) -> None:
         try:
             user = await asyncio.wait_for( DB.getUser( user_id ), 5 )
         except TimeoutError as e:
@@ -326,7 +338,8 @@ class AccountSetupController:
         await BOT.send_message( chat_id=chat_id, text=text, reply_markup=builder.as_markup() )
 
 
-    async def _setup_cover_start( self, chat_id: int, user_id: int ) -> None:
+    @staticmethod
+    async def __setup_cover_start( chat_id: int, user_id: int ) -> None:
         try:
             user = await asyncio.wait_for( DB.getUser( user_id ), 5 )
         except TimeoutError as e:
@@ -344,7 +357,8 @@ class AccountSetupController:
         await BOT.send_message( chat_id=chat_id, text=text, reply_markup=builder.as_markup() )
 
 
-    async def _setup_images_start( self, chat_id: int, user_id: int ) -> None:
+    @staticmethod
+    async def __setup_images_start( chat_id: int, user_id: int ) -> None:
         try:
             user = await asyncio.wait_for( DB.getUser( user_id ), 5 )
         except TimeoutError as e:
