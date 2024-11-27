@@ -1,19 +1,19 @@
-# -*- coding: utf-8 -*-
-
-
-import re
-from dotenv import load_dotenv
-
-
-import ujson
+import os
 import asyncio
 import logging
+from dotenv import load_dotenv
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError, ResponseValidationError
 
-load_dotenv(".env")
+try:
+    load_dotenv(".env")
+except:
+    pass
+
+if not os.environ.get("BOT_TOKEN"):
+    raise Exception('provide BOT_TOKEN in env')
 
 from app.configs import GC
 from app.objects import DB, BOT

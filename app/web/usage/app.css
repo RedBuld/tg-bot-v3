@@ -54,9 +54,10 @@ body {
 }
 #queue_stats table {
 	width: 100%;
+	max-width: 100%;
 	border: 1px solid var(--tg-theme-hint-color, #bbb);
 	border-collapse: collapse;
-	margin: 0px 0px 1.5rem 0px;
+	margin: 0px 0px 0.5rem 0px;
 }
 #queue_stats table td,
 #queue_stats table th {
@@ -68,6 +69,7 @@ body {
 }
 #queue_stats table td {
 	color: var(--tg-theme-text-color);
+	word-break: break-all;
 }
 #queue_stats table th {
 	border-color: var(--tg-theme-button-color);

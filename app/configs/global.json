@@ -1,7 +1,10 @@
 {
     "bot_id": "test",
 	"bot_host": "https://v3.e2bot.online/bot/",
+	"redis_server": "redis://127.0.0.1:6379/1",
+	"local_server": "http://localhost:4041",
     "queue_host": "http://127.0.0.1:8010/",
+    "encrypt_key": "fiBL_VPMpCfGmpcjYZKqcwGzvyXFcWXccFRI4nKErHw=",
     "free_limit": 100,
 	"admins": [470328529],
     "formats": {

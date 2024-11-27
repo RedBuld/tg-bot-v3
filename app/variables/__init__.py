@@ -20,3 +20,9 @@ class DownloaderStep():
 class InteractionModes():
     inline: str = "В чате"
     windowed: str = "Отдельные окна"
+
+@dataclass(frozen=True)
+class HashtagsModes():
+    no: str = "Нет"
+    bf: str = "BooksFine"
+    gf: str = "Цокольный этаж"

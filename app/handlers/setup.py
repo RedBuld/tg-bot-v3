@@ -7,7 +7,7 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 from app import models
 from app.configs import GC
 from app.objects import DB, RD, BOT
-from app.variables import InteractionModes
+from app.variables import InteractionModes, HashtagsModes
 
 logger = logging.getLogger( __name__ )
 
@@ -68,6 +68,7 @@ class AccountSetupController:
         builder.button( text="Формат", callback_data="setup:format" )
         builder.button( text="Обложка", callback_data="setup:cover" )
         builder.button( text="Изображения", callback_data="setup:images" )
+        builder.button( text="Хэштэги", callback_data="setup:hashtags" )
         builder.adjust(1, repeat=True)
 
         await BOT.send_message( chat_id=message.chat.id, text=text, reply_markup=builder.as_markup() )
@@ -144,6 +145,17 @@ class AccountSetupController:
             await BOT.send_message( chat_id=callback_query.message.chat.id, reply_to_message_id=callback_query.message.message_id, text="Ошибка: Не могу удалить сообщение" )
 
         await AccountSetupController.__setup_images_start( callback_query.message.chat.id, callback_query.from_user.id )
+
+    @staticmethod
+    async def account_setup_hashtags( callback_query: types.CallbackQuery ) -> None:
+        await callback_query.answer()
+
+        try:
+            await BOT.delete_message( chat_id=callback_query.message.chat.id, message_id=callback_query.message.message_id )
+        except:
+            await BOT.send_message( chat_id=callback_query.message.chat.id, reply_to_message_id=callback_query.message.message_id, text="Ошибка: Не могу удалить сообщение" )
+
+        await AccountSetupController.__setup_hashtags_start( callback_query.message.chat.id, callback_query.from_user.id )
 
 
     # savers
@@ -283,6 +295,37 @@ class AccountSetupController:
             return await BOT.send_message( chat_id=callback_query.message.chat.id, text="Ошибка соединения с БД. Попробуйте позднее" )
 
         if not user.setuped:
+            await AccountSetupController.__setup_hashtags_start( callback_query.message.chat.id, callback_query.from_user.id )
+        else:
+            return await BOT.send_message( chat_id=callback_query.message.chat.id, text="Скачивание изображений по умолчанию: " + ('Да' if user.images else 'Нет') )
+
+
+    @staticmethod
+    async def account_setup_hashtags_save( callback_query: types.CallbackQuery ) -> None:
+        await callback_query.answer()
+
+        try:
+            await BOT.delete_message( chat_id=callback_query.message.chat.id, message_id=callback_query.message.message_id )
+        except:
+            await BOT.send_message( chat_id=callback_query.message.chat.id, reply_to_message_id=callback_query.message.message_id, text="Ошибка: Не могу удалить сообщение" )
+        
+        try:
+            user = await asyncio.wait_for( DB.getUser( callback_query.from_user.id ), 5 )
+        except TimeoutError as e:
+            return await BOT.send_message( chat_id=callback_query.message.chat.id, text="Ошибка соединения с БД. Попробуйте позднее" )
+
+        if not user:
+            logger.info('hashtags_save')
+            logger.info(callback_query)
+            return await BOT.send_message( chat_id=callback_query.message.chat.id, text="Ошибка: пользователь не найден, нажмите /start" )
+        hashtags = callback_query.data.split('setup:hashtags:')[1]
+        user.hashtags = hashtags
+        try:
+            user = await asyncio.wait_for( DB.saveUser(user), 5 )
+        except TimeoutError as e:
+            return await BOT.send_message( chat_id=callback_query.message.chat.id, text="Ошибка соединения с БД. Попробуйте позднее" )
+
+        if not user.setuped:
             user.setuped = True
             try:
                 user = await asyncio.wait_for( DB.saveUser(user), 5 )
@@ -291,7 +334,7 @@ class AccountSetupController:
         
             await BOT.send_message( chat_id=callback_query.message.chat.id, text="Настройка завершена" )
         else:
-            return await BOT.send_message( chat_id=callback_query.message.chat.id, text="Скачивание изображений по умолчанию: " + ('Да' if user.images else 'Нет') )
+            return await BOT.send_message( chat_id=callback_query.message.chat.id, text="Формат хэштэгов: " + getattr(HashtagsModes,user.hashtags) )
         
 
 
@@ -371,6 +414,26 @@ class AccountSetupController:
         builder = InlineKeyboardBuilder()
         builder.button( text="Да", callback_data='setup:images:yes')
         builder.button( text="Нет", callback_data='setup:images:no')
+        builder.adjust(1, repeat=True)
+
+        await BOT.send_message( chat_id=chat_id, text=text, reply_markup=builder.as_markup() )
+
+
+    @staticmethod
+    async def __setup_hashtags_start( chat_id: int, user_id: int ) -> None:
+        try:
+            user = await asyncio.wait_for( DB.getUser( user_id ), 5 )
+        except TimeoutError as e:
+            return await BOT.send_message( chat_id=chat_id, text="Ошибка соединения с БД. Попробуйте позднее" )
+        if not user:
+            return await BOT.send_message( chat_id=chat_id, text="Ошибка: пользователь не найден, нажмите /start" )
+
+        text = "Использовать хэштэги (по умолчанию)?"
+
+        builder = InlineKeyboardBuilder()
+        builder.button( text=HashtagsModes.no, callback_data='setup:hashtags:no')
+        builder.button( text=HashtagsModes.bf, callback_data='setup:hashtags:bf')
+        builder.button( text=HashtagsModes.gf, callback_data='setup:hashtags:gf')
         builder.adjust(1, repeat=True)
 
         await BOT.send_message( chat_id=chat_id, text=text, reply_markup=builder.as_markup() )

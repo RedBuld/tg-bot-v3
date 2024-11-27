@@ -203,6 +203,23 @@ class Interconnect:
                 await asyncio.sleep(5)
 
     @staticmethod
+    async def ReloadConfig() -> None:
+        _attempts = 0
+        while _attempts < 5:
+            try:
+                async with aiohttp.ClientSession() as session:
+                    async with session.get( GC.queue_host + 'update_config', verify_ssl=False ) as response:
+                        if response.status == 200:
+                            _attempts = 5
+                        else:
+                            _attempts+=1
+                            await asyncio.sleep(5)
+            except:
+                traceback.print_exc()
+                _attempts+=1
+                await asyncio.sleep(5)
+
+    @staticmethod
     async def CheckLink( link: str ) -> bool:
         cache_key = "check_link_" + str( hashlib.md5( link.encode('utf-8') ).hexdigest() )
         allowed = await RD.getex(cache_key)

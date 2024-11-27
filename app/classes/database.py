@@ -18,15 +18,36 @@ from app import models
 logger = logging.getLogger(__name__)
 
 class DataBase(object):
-    _engine: Engine
-    _session: sessionmaker[Session]
+    _engine: Engine = None
+    _session: sessionmaker[Session] = None
 
     __server: str = ""
 
     def __init__(self):
-        self._engine = None
-        self._session = None
-        return
+        config_path = []
+
+        cwd = os.getcwd()
+
+        config_path.append(cwd)
+
+        if not cwd.endswith('app/') and not cwd.endswith('app'):
+            config_path.append('app')
+
+        config_file = os.path.join( *config_path, 'configs', 'database.json' )
+
+        config: Dict[str,Any] = {}
+
+        try:
+            if not os.path.exists(config_file):
+                raise FileNotFoundError(config_file)
+
+            with open( config_file, 'r', encoding='utf-8' ) as _config_file:
+                _config = _config_file.read()
+                config = ujson.loads( _config )
+        except:
+            traceback.print_exc()
+
+        self.__server = config['server'] if 'server' in config else ""
     
     async def Start(self) -> None:
         if self._engine:
@@ -62,32 +83,7 @@ class DataBase(object):
             logger.info('DB: validated database')
     
     async def updateConfig(self) -> None:
-
-        config_path = []
-
-        cwd = os.getcwd()
-
-        config_path.append(cwd)
-
-        if not cwd.endswith('app/') and not cwd.endswith('app'):
-            config_path.append('app')
-
-        config_file = os.path.join( *config_path, 'configs', 'database.json' )
-
-        config: Dict[str,Any] = {}
-
-        try:
-            if not os.path.exists(config_file):
-                raise FileNotFoundError(config_file)
-
-            with open( config_file, 'r', encoding='utf-8' ) as _config_file:
-                _config = _config_file.read()
-                config = ujson.loads( _config )
-        except:
-            traceback.print_exc()
-
-        self.__server = config['server'] if 'server' in config else ""
-
+        self.__init__()
         if self._engine:
             await self.Stop()
             await self.Start()
@@ -174,6 +170,29 @@ class DataBase(object):
             result = query.scalar_one_or_none()
             session.close()
             return result == 1
+        except OperationalError as e:
+            await asyncio.sleep(1)
+            return await self.getUserInteractMode( user_id=user_id )
+        except Exception as e:
+            raise e
+        finally:
+            session.close()
+
+    async def getUserHashtags(
+        self,
+        user_id: int
+    ) -> str:
+        session = self._session()
+        try:
+            query = session.execute(
+                select(models.User.hashtags)
+                .where(
+                    models.User.id==user_id
+                )
+            )
+            result = query.scalar_one_or_none()
+            session.close()
+            return result
         except OperationalError as e:
             await asyncio.sleep(1)
             return await self.getUserInteractMode( user_id=user_id )

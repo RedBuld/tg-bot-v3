@@ -18,7 +18,10 @@ def human_size(size: int) -> str:
     return f"{size} {ext}"
 
 def punydecode(site: str) -> str:
-    return site.encode().decode('idna')
+    try:
+        return site.encode().decode('idna')
+    except:
+        return site
 
 def hideui(url: str) -> str:
     return re.sub(r"&?ui=\d+", "", url)

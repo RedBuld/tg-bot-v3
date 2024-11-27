@@ -5,41 +5,21 @@ import traceback
 from typing import List, Dict, Any
 
 class GlobalConfig():
-    bot_id:      str
-    bot_host:    str
-    queue_host:  str
-    free_limit:  int = 100
-    formats:     Dict[str,str] = {}
-    groups:      Dict[str,str] = {}
-    demo:        Dict[str,str] = {}
-    admins:      List[int] = []
-    encrypt_key: bytes
-    mask:        re.Pattern = re.compile("https?:\\/\\/(www\\.|m\\.|ru\\.)*(?P<site>[^\\/]+)\\/.+")
-    inited:      bool = False
+    bot_id:       str
+    bot_host:     str
+    redis_server: str
+    local_server: str
+    queue_host:   str
+    free_limit:   int = 100
+    formats:      Dict[str,str] = {}
+    groups:       Dict[str,str] = {}
+    demo:         Dict[str,str] = {}
+    admins:       List[int] = []
+    encrypt_key:  bytes
+    mask:         re.Pattern = re.compile("https?:\\/\\/(www\\.|m\\.|ru\\.)*(?P<site>[^\\/]+)\\/.+")
+    inited:       bool = False
 
-    # def __escape_md__( self, text: str ) -> str:
-    #     text = text\
-    #         .replace('_', '\\_')\
-    #         .replace('*', '\\*')\
-    #         .replace('[', '\\[')\
-    #         .replace(']', '\\]')\
-    #         .replace('(', '\\(')\
-    #         .replace(')', '\\)')\
-    #         .replace('~', '\\~')\
-    #         .replace('`', '\\`')\
-    #         .replace('>', '\\>')\
-    #         .replace('#', '\\#')\
-    #         .replace('+', '\\+')\
-    #         .replace('-', '\\-')\
-    #         .replace('=', '\\=')\
-    #         .replace('|', '\\|')\
-    #         .replace('{', '\\{')\
-    #         .replace('}', '\\}')\
-    #         .replace('.', '\\.')\
-    #         .replace('!', '\\!')
-    #     return text
-
-    async def updateConfig( self ):
+    def __init__( self ):
         config_path = []
 
         cwd = os.getcwd()
@@ -64,11 +44,21 @@ class GlobalConfig():
             if not self.inited:
                 raise e
             traceback.print_exc()
-        
+
         if 'queue_host' in config:
             self.queue_host = config['queue_host']
         else:
             raise Exception('No queue_host defined')
+
+        if 'redis_server' in config:
+            self.redis_server = config['redis_server']
+        else:
+            raise Exception('No redis_server defined')
+
+        if 'local_server' in config:
+            self.local_server = config['local_server']
+        else:
+            raise Exception('No local_server defined')
 
         if 'encrypt_key' in config:
             self.encrypt_key = bytes(config['encrypt_key'], encoding='utf-8')
@@ -109,3 +99,6 @@ class GlobalConfig():
             self.free_limit = config['free_limit']
         else:
             self.free_limit = 100
+
+    async def updateConfig( self ):
+        self.__init__()

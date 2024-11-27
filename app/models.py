@@ -17,6 +17,7 @@ class User(Base):
     format: Mapped[dict] =         mapped_column( 'format', String(20), default='fb2' )
     cover: Mapped[dict] =          mapped_column( 'cover', Boolean, default=True )
     images: Mapped[dict] =         mapped_column( 'images', Boolean, default=True )
+    hashtags: Mapped[str] =        mapped_column( 'hashtags', String(5), default='no' )
 
 class UserStat(Base):
     __tablename__ = 'users_stats'

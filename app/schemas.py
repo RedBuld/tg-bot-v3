@@ -35,6 +35,7 @@ class DownloadSetupRequest(BaseModel):
     end:        int | None = 0
     cover:      bool | None = False
     images:     bool | None = False
+    hashtags:   str = 'no'
 
 class DownloadRequest(BaseModel):
     task_id:    int | None = None
@@ -52,6 +53,7 @@ class DownloadRequest(BaseModel):
     password:   str | None = ""
     images:     bool | None = False
     cover:      bool | None = False
+    hashtags:   str = 'no'
     proxy:      str | None = ""
 
     class Config:
