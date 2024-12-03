@@ -1,4 +1,5 @@
 import re
+import asyncio
 
 def human_size(size: int) -> str:
     ext = "б"
@@ -25,3 +26,7 @@ def punydecode(site: str) -> str:
 
 def hideui(url: str) -> str:
     return re.sub(r"&?ui=\d+", "", url)
+
+async def autoclean() -> None:
+    from app.handlers.downloads.inline import InlineDownloadsController
+    asyncio.create_task( InlineDownloadsController.clear_abandoned() )

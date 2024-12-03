@@ -72,6 +72,8 @@ class InlineDownloadRequest(Base):
 	format: Mapped[str] =          mapped_column( 'format', Text, default='')
 	images: Mapped[bool] =         mapped_column( 'images', Boolean, default=True )
 	cover: Mapped[bool] =          mapped_column( 'cover', Boolean, default=True )
+	#
+	created: Mapped[datetime] =    mapped_column( 'created', DateTime, default=datetime.now )
 
 class ACL(Base):
 	__tablename__ = 'acl'

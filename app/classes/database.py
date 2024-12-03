@@ -4,7 +4,7 @@ import logging
 import ujson
 import asyncio
 from typing import List, Dict, Any
-from datetime import datetime
+from datetime import datetime, timedelta
 from sqlalchemy import func, select, delete, exists, or_, and_
 from sqlalchemy import create_engine
 from sqlalchemy import Engine
@@ -101,6 +101,7 @@ class DataBase(object):
             return user
         except OperationalError as e:
             await asyncio.sleep(1)
+            traceback.print_exc()
             return await self.saveUser( user=user )
         except Exception as e:
             raise e
@@ -126,6 +127,7 @@ class DataBase(object):
             return result
         except OperationalError as e:
             await asyncio.sleep(1)
+            traceback.print_exc()
             return await self.getUser( user_id=user_id )
         except Exception as e:
             raise e
@@ -149,6 +151,7 @@ class DataBase(object):
             return result == 1
         except OperationalError as e:
             await asyncio.sleep(1)
+            traceback.print_exc()
             return await self.getUserSetuped( user_id=user_id )
         except Exception as e:
             raise e
@@ -172,6 +175,7 @@ class DataBase(object):
             return result == 1
         except OperationalError as e:
             await asyncio.sleep(1)
+            traceback.print_exc()
             return await self.getUserInteractMode( user_id=user_id )
         except Exception as e:
             raise e
@@ -195,6 +199,7 @@ class DataBase(object):
             return result
         except OperationalError as e:
             await asyncio.sleep(1)
+            traceback.print_exc()
             return await self.getUserInteractMode( user_id=user_id )
         except Exception as e:
             raise e
@@ -219,6 +224,7 @@ class DataBase(object):
             return result
         except OperationalError as e:
             await asyncio.sleep(1)
+            traceback.print_exc()
             return await self.getUserAuthedSites( user_id=user_id )
         except Exception as e:
             raise e
@@ -244,6 +250,7 @@ class DataBase(object):
             return result
         except OperationalError as e:
             await asyncio.sleep(1)
+            traceback.print_exc()
             return await self.getUserAuthsForSite( user_id=user_id, site=site )
         except Exception as e:
             raise e
@@ -271,6 +278,7 @@ class DataBase(object):
             return auth
         except OperationalError as e:
             await asyncio.sleep(1)
+            traceback.print_exc()
             return await self.saveUserAuth( user_id=user_id, site=site, login=login, password=password )
         except Exception as e:
             raise e
@@ -296,6 +304,7 @@ class DataBase(object):
             session.close()
         except OperationalError as e:
             await asyncio.sleep(1)
+            traceback.print_exc()
             return await self.deleteUserAuth( user_id, user_id=user_id, auth_id=auth_id )
         except Exception as e:
             raise e
@@ -320,6 +329,7 @@ class DataBase(object):
             return result
         except OperationalError as e:
             await asyncio.sleep(1)
+            traceback.print_exc()
             return await self.getUserAuth( user_id=user_id, auth_id=auth_id )
         except Exception as e:
             raise e
@@ -367,6 +377,7 @@ class DataBase(object):
             session.close()
         except OperationalError as e:
             await asyncio.sleep(1)
+            traceback.print_exc()
             return await self.UpdateUserStat(result)
         except Exception as e:
             raise e
@@ -386,6 +397,7 @@ class DataBase(object):
             return request
         except OperationalError as e:
             await asyncio.sleep(1)
+            traceback.print_exc()
             return await self.saveInlineDownloadRequest( request=request )
         except Exception as e:
             raise e
@@ -417,6 +429,7 @@ class DataBase(object):
             return result
         except OperationalError as e:
             await asyncio.sleep(1)
+            traceback.print_exc()
             return await self.getInlineDownloadRequest( bot_id=bot_id, user_id=user_id, chat_id=chat_id, message_id=message_id )
         except Exception as e:
             raise e
@@ -446,7 +459,36 @@ class DataBase(object):
             session.close()
         except OperationalError as e:
             await asyncio.sleep(1)
+            traceback.print_exc()
             return await self.deleteInlineDownloadRequest( bot_id=bot_id, user_id=user_id, chat_id=chat_id, message_id=message_id )
+        except Exception as e:
+            raise e
+        finally:
+            session.close()
+    
+    async def getAbandonedInlineDownloadRequests(
+        self,
+        bot_id: str
+    ) -> List[models.InlineDownloadRequest]:
+        session = self._session()
+        abandoned_time = datetime.now() - timedelta(days=1)
+        try:
+            query = session.execute(
+                select(models.InlineDownloadRequest)\
+                    .where(
+                        models.InlineDownloadRequest.bot_id==bot_id,
+                        models.InlineDownloadRequest.created<abandoned_time
+                    )
+                )
+            result = query.scalars().all()
+            session.close()
+            if not result:
+                return None
+            return result
+        except OperationalError as e:
+            await asyncio.sleep(1)
+            traceback.print_exc()
+            return await self.getAbandonedInlineDownloadRequests( bot_id=bot_id )
         except Exception as e:
             raise e
         finally:

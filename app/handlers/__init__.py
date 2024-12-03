@@ -29,6 +29,9 @@ from app.objects import BOT, DP
 from app.classes.interconnect import Interconnect
 
 async def register_bot_handlers() -> None:
+
+    await AdminController.set_menu()
+
     router = Router()
 
     router.message.register( AccountSetupController.start_command, Command( commands='start' ) )
@@ -39,8 +42,10 @@ async def register_bot_handlers() -> None:
     router.message.register( AuthController.auth_init, Command( commands='auth' ) )
     router.message.register( ExistentAuthController.existent_auths, Command( commands='auths' ) )
     router.message.register( AdminController.admin_cancel_command, Command( commands='admin_cancel' ) )
+    router.message.register( AdminController.admin_cancel_batch_command, Command( commands='admin_cancel_batch' ) )
     router.message.register( AdminController.admin_reload_command, Command( commands='admin_reload' ) )
     router.message.register( AdminController.admin_leave_command, Command( commands='admin_leave' ) )
+    router.message.register( AdminController.admin_queue, Command( commands='admin_queue' ) )
     router.message.register( InlineAuthController.inline_auth_login, variables.AuthForm.login )
     router.message.register( InlineAuthController.inline_auth_password, variables.AuthForm.password )
     router.message.register( InlineDownloadsController.inline_download_setup_paging_start_page, variables.InlineDownloadForm.start_page )
@@ -76,6 +81,9 @@ async def register_bot_handlers() -> None:
     router.callback_query.register( WindowAuthController.window_auth_cancel, F.data=='wac:cancel' )
     router.callback_query.register( ExistentAuthController.existent_auth_cancel, F.data == 'eac:cancel' )
     router.callback_query.register( ExistentAuthController.existent_auths_map, F.data.startswith('eac:') )
+    router.callback_query.register( AdminController.admin_queue_pass, F.data == 'aq:pass' )
+    router.callback_query.register( AdminController.admin_queue_refresh, F.data == 'aq:refresh' )
+    router.callback_query.register( AdminController.admin_queue_cancel, F.data.startswith('aq:cancel:') )
 
     DP.include_router( router )
 

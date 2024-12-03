@@ -1,6 +1,5 @@
 {
-    "bot_id": "test",
-	"bot_host": "https://v3.e2bot.online/bot/",
+    "bot_id": "dev",
 	"redis_server": "redis://127.0.0.1:6379/1",
 	"local_server": "http://localhost:4041",
     "queue_host": "http://127.0.0.1:8010/",

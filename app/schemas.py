@@ -62,6 +62,13 @@ class DownloadRequest(BaseModel):
 class DownloadCancelRequest(BaseModel):
     task_id:    int
 
+class DownloadCancelResponse(BaseModel):
+    user_id:    int
+    bot_id:     str | None = None
+    web_id:     str | None = None
+    chat_id:    int
+    message_id: int
+
 class DownloadClearRequest(BaseModel):
     task_id:    int
     folder:     str

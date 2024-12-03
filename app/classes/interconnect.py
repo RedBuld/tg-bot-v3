@@ -101,9 +101,12 @@ class Interconnect:
         return model.allowed, model.parameters, model.formats
 
     @staticmethod
-    async def GetUsage() -> Dict[ str, Any ]:
+    async def GetUsage(use_cache: bool = True) -> Dict[ str, Any ]:
         cache_key = "cache_usage"
-        cached = await RD.get(cache_key)
+        if use_cache:
+            cached = await RD.get(cache_key)
+        else:
+            cached = None
 
         if not cached:
             stats = {}
@@ -179,6 +182,22 @@ class Interconnect:
             async with aiohttp.ClientSession(json_serialize=ujson.dumps) as session:
                 async with session.post( GC.queue_host + 'download/cancel', json=request.model_dump(mode='json'), verify_ssl=False ) as response:
                     return True
+        except ClientError as e:
+            return "Ошибка соединения с сервером загрузки"
+        except Exception as e:
+            return str(e)
+
+    @staticmethod
+    async def CancelDownloadWithObj( request: schemas.DownloadCancelRequest ) -> schemas.DownloadCancelResponse | str:
+        try:
+            async with aiohttp.ClientSession(json_serialize=ujson.dumps) as session:
+                async with session.post( GC.queue_host + 'download/cancel_obj', json=request.model_dump(mode='json'), verify_ssl=False ) as response:
+                    if response.status == 200:
+                        data = await response.json( loads=ujson.loads )
+                        return schemas.DownloadCancelResponse.model_validate( data )
+                    else:
+                        message = await response.json( loads=ujson.loads )
+                        return message
         except ClientError as e:
             return "Ошибка соединения с сервером загрузки"
         except Exception as e:

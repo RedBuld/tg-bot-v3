@@ -18,6 +18,7 @@ if not os.environ.get("BOT_TOKEN"):
 from app.configs import GC
 from app.objects import DB, BOT
 from app.handlers import register_bot_handlers, register_api_handlers, register_web_part, register_poller_part
+from app.tools import autoclean
 
 
 ####
@@ -96,6 +97,7 @@ app = FastAPI(
 async def init(app: FastAPI) -> None:
     await register_bot_handlers()
     await register_api_handlers(app)
+    # await autoclean()
 
     if GC.bot_host:
         asyncio.create_task( register_web_part(app) )
