@@ -49,12 +49,16 @@ class AdminController:
         )
 
         result = await Interconnect.CancelDownload( request )
-        if type(result) != bool:
-            await BOT.send_message( chat_id=message.chat.id, text=str(result) )
-        try:
-            await BOT.delete_message( chat_id=message.chat.id, message_id=message.message_id )
-        except:
-            await BOT.send_message( chat_id=message.chat.id, reply_to_message_id=message.message_id, text="Ошибка: Не могу удалить сообщение" )
+        if type(result) == str:
+            try:
+                await BOT.send_message( chat_id=message.chat.id, text=str(result) )
+            except:
+                pass
+        else:
+            try:
+                await BOT.delete_message( chat_id=result.chat_id, message_id=result.message_id )
+            except:
+                await BOT.send_message( chat_id=message.chat.id, reply_to_message_id=message.message_id, text="Ошибка: Не могу удалить сообщение" )
 
     @staticmethod
     async def admin_cancel_batch_command( message: types.Message ) -> None:
@@ -73,8 +77,16 @@ class AdminController:
             )
 
             result = await Interconnect.CancelDownload( request )
-            if type(result) != bool:
-                await BOT.send_message( chat_id=message.chat.id, text=str(result) )
+            if type(result) == str:
+                try:
+                    await BOT.send_message( chat_id=message.chat.id, text=str(result) )
+                except:
+                    pass
+            else:
+                try:
+                    await BOT.delete_message( chat_id=result.chat_id, message_id=result.message_id )
+                except:
+                    pass
         try:
             await BOT.delete_message( chat_id=message.chat.id, message_id=message.message_id )
         except:
@@ -113,6 +125,15 @@ class AdminController:
         await callback_query.answer()
 
     @staticmethod
+    async def admin_queue_close( callback_query: types.CallbackQuery ) -> None:
+        await callback_query.answer()
+
+        try:
+            await BOT.delete_message( chat_id=callback_query.message.chat.id, message_id=callback_query.message.message_id )
+        except:
+            pass
+
+    @staticmethod
     async def admin_queue_refresh( callback_query: types.CallbackQuery ) -> None:
         await callback_query.answer()
 
@@ -128,12 +149,17 @@ class AdminController:
             task_id = int( task_id )
         )
 
-        result = await Interconnect.CancelDownloadWithObj( request )
-        if type(result) != bool:
+        result = await Interconnect.CancelDownload( request )
+        if type(result) == str:
+            try:
+                await BOT.send_message( chat_id=callback_query.message.chat.id, text=str(result) )
+            except:
+                pass
+        else:
             try:
                 await BOT.delete_message( chat_id=result.chat_id, message_id=result.message_id )
             except:
-                pass
+                await BOT.send_message( chat_id=callback_query.message.chat.id, reply_to_message_id=callback_query.message.message_id, text="Ошибка: Не могу удалить сообщение" )
 
         await AdminController.__update_queue_inline(callback_query.message)
 
@@ -144,10 +170,8 @@ class AdminController:
         tasks = await Interconnect.GetUsage()
 
         builder = InlineKeyboardBuilder()
-
-        filler = "-"*10
         
-        builder.button( text="Отмена", callback_data="aq:cancel" )
+        builder.button( text="Закрыть", callback_data="aq:close" )
         builder.button( text="Обновить", callback_data="aq:refresh" )
 
         builder.button( text="Загружаются", callback_data="aq:pass" )
@@ -157,14 +181,14 @@ class AdminController:
                 builder.button( text=task['last_status'], callback_data="aq:pass" )
                 builder.button( text='', callback_data="aq:pass" )
                 # 
-                builder.button( text=task['url'], url=task['url'] )
+                builder.button( text=task['request']['url'], url=task['request']['url'] )
                 builder.button( text='🚫', callback_data=f"aq:cancel:{task['task_id']}" )
 
         builder.button( text="Ждут", callback_data="aq:pass" )
         builder.button( text='', callback_data="aq:pass" )
         for group in tasks['waiting']:
             for task in group['tasks']:
-                builder.button( text=task['url'], url=task['url'] )
+                builder.button( text=task['request']['url'], url=task['request']['url'] )
                 builder.button( text='🚫', callback_data=f"aq:cancel:{task['task_id']}" )
         
         builder.adjust( 2, repeat=True )

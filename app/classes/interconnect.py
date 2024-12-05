@@ -177,24 +177,17 @@ class Interconnect:
 
 
     @staticmethod
-    async def CancelDownload( request: schemas.DownloadCancelRequest ) -> bool | str:
+    async def CancelDownload( request: schemas.DownloadCancelRequest ) -> schemas.DownloadCancelResponse | str:
         try:
             async with aiohttp.ClientSession(json_serialize=ujson.dumps) as session:
                 async with session.post( GC.queue_host + 'download/cancel', json=request.model_dump(mode='json'), verify_ssl=False ) as response:
-                    return True
-        except ClientError as e:
-            return "Ошибка соединения с сервером загрузки"
-        except Exception as e:
-            return str(e)
-
-    @staticmethod
-    async def CancelDownloadWithObj( request: schemas.DownloadCancelRequest ) -> schemas.DownloadCancelResponse | str:
-        try:
-            async with aiohttp.ClientSession(json_serialize=ujson.dumps) as session:
-                async with session.post( GC.queue_host + 'download/cancel_obj', json=request.model_dump(mode='json'), verify_ssl=False ) as response:
                     if response.status == 200:
-                        data = await response.json( loads=ujson.loads )
-                        return schemas.DownloadCancelResponse.model_validate( data )
+                        try:
+                            data = await response.json( loads=ujson.loads )
+                            return schemas.DownloadCancelResponse.model_validate( data )
+                        except:
+                            traceback.print_exc()
+                            return 'Загрузка не найдена'
                     else:
                         message = await response.json( loads=ujson.loads )
                         return message

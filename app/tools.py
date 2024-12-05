@@ -1,5 +1,9 @@
 import re
+import json
 import asyncio
+
+def pretty_json(data: dict) -> str:
+    return json.dumps(data, ensure_ascii=False, indent=4)
 
 def human_size(size: int) -> str:
     ext = "б"

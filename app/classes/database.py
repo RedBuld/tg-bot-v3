@@ -322,8 +322,9 @@ class DataBase(object):
                 select(models.UserAuth)\
                 .where(
                     models.UserAuth.user_id==user_id,
-                    models.UserAuth.id==auth_id)
+                    models.UserAuth.id==auth_id
                 )
+            )
             result = query.scalar_one_or_none()
             session.close()
             return result
@@ -340,7 +341,32 @@ class DataBase(object):
         self,
         user_id: int
     ) -> int:
-        return 0
+        session = self._session()
+        try:
+            query = session.execute(
+                select(
+                    func.sum(models.UserStat.success),
+                    func.sum(models.UserStat.failure)
+                )\
+                .where(
+                    models.UserStat.user_id==user_id,
+                    models.UserStat.day==datetime.today().date()
+                )
+            )
+            result = query.one_or_none()
+            session.close()
+            if not result:
+                return 0
+            result = result[0] + result[1]
+            return result
+        except OperationalError as e:
+            await asyncio.sleep(1)
+            traceback.print_exc()
+            return await self.getUserUsage( user_id=user_id)
+        except Exception as e:
+            raise e
+        finally:
+            session.close()
 
     #
 

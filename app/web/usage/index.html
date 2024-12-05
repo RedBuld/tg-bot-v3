@@ -9,7 +9,7 @@
 </head>
 <body>
     {% if request.query_params['test'] %}
-    <pre>{{ stats['stats']|tojson }}</pre>
+    <pre>{{ stats['stats']|pretty_json }}</pre>
     {% endif %}
 	<div id="queue_stats">
         <h1>Активные загрузки:</h1>
@@ -30,7 +30,7 @@
                 <tbody>
                     {% for task in group['tasks'] %}
                     <tr>
-                        <td><a target="_blank" href="{{ task['url']|hideui }}">{{ task['site']|punydecode }}</a></td>
+                        <td><a target="_blank" href="{{ task['request']['url']|hideui }}">{{ task['request']['site']|punydecode }}{% if task['request']['proxy'] %} [Proxied]{% endif %}</a></td>
                         <td>{{ task['last_status'] }}</td>
                     </tr>
                     {% endfor %}
@@ -59,8 +59,8 @@
             <tbody>
                 {% for task in group['tasks'] %}
                 <tr>
-                    {# <td><a target="_blank" href="{{ task['url']|hideui }}">{{ task['site']|punydecode }}</a></td> #}
-                    <td><a target="_blank" href="{{ task['url']|hideui }}">{{ task['url']|hideui }}</a></td>
+                    {# <td><a target="_blank" href="{{ task['request']['url']|hideui }}">{{ task['request']['site']|punydecode }}</a></td> #}
+                    <td><a target="_blank" href="{{ task['request']['url']|hideui }}">{{ task['request']['url']|hideui }}</a></td>
                 </tr>
                 {% endfor %}
             </tbody>

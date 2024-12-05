@@ -34,12 +34,23 @@ class MiscController:
     @staticmethod
     async def stats_command( message: types.Message ) -> None:
 
-        stats_web_app = types.WebAppInfo( url=GC.bot_host + 'stats' )
-        usage_web_app = types.WebAppInfo( url=GC.bot_host + 'usage' )
 
         builder = InlineKeyboardBuilder()
-        builder.button( text="Статистика сайтов", web_app=stats_web_app )
-        builder.button( text="Загрузка очереди", web_app=usage_web_app )
+        if GC.bot_host:
+            stats_web_app = types.WebAppInfo( url=GC.bot_host + 'stats' )
+            builder.button( text="Статистика сайтов", web_app=stats_web_app )
+        if GC.bot_host:
+            usage_web_app = types.WebAppInfo( url=GC.bot_host + 'usage' )
+            builder.button( text="Загрузка очереди", web_app=usage_web_app )
+        builder.button( text="Дневной лимит", callback_data="mc:daily" )
         builder.adjust(1, repeat=True)
 
         await BOT.send_message( chat_id=message.chat.id, text="Доступная статистика", reply_markup=builder.as_markup() )
+    
+    @staticmethod
+    async def daily_limit(callback_query: types.CallbackQuery ) -> None:
+        await callback_query.answer()
+
+        usage = await DB.getUserUsage( user_id=callback_query.from_user.id )
+
+        await BOT.send_message( chat_id=callback_query.message.chat.id, text=f'Дневной лимит: {usage} / {GC.free_limit}' )

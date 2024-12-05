@@ -35,6 +35,7 @@ class DownloadSetupRequest(BaseModel):
     end:        int | None = 0
     cover:      bool | None = False
     images:     bool | None = False
+    proxy:      str | None = ''
     hashtags:   str = 'no'
 
 class DownloadRequest(BaseModel):
@@ -53,8 +54,8 @@ class DownloadRequest(BaseModel):
     password:   str | None = ""
     images:     bool | None = False
     cover:      bool | None = False
-    hashtags:   str = 'no'
     proxy:      str | None = ""
+    hashtags:   str = 'no'
 
     class Config:
         from_attributes = True
@@ -88,6 +89,7 @@ class DownloadResult(BaseModel):
     orig_size:  int
     oper_size:  int
     folder:     str
+    proxy:      str | None = ""
 
     class Config:
         from_attributes = True

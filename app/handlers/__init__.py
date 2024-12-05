@@ -28,6 +28,22 @@ from app.configs import GC
 from app.objects import BOT, DP
 from app.classes.interconnect import Interconnect
 
+config_path = []
+
+cwd = os.getcwd()
+
+config_path.append(cwd)
+
+if not cwd.endswith('app/') and not cwd.endswith('app'):
+    config_path.append('app')
+
+web_dir = os.path.join( *config_path, "web" )
+templates = Jinja2Templates(directory=web_dir)
+templates.env.filters["human_size"] = tools.human_size
+templates.env.filters["punydecode"] = tools.punydecode
+templates.env.filters["hideui"] = tools.hideui
+templates.env.filters["pretty_json"] = tools.pretty_json
+
 async def register_bot_handlers() -> None:
 
     await AdminController.set_menu()
@@ -64,6 +80,7 @@ async def register_bot_handlers() -> None:
     router.callback_query.register( AccountSetupController.account_setup_cover_save, F.data.startswith('setup:cover:') )
     router.callback_query.register( AccountSetupController.account_setup_images_save, F.data.startswith('setup:images:') )
     router.callback_query.register( AccountSetupController.account_setup_hashtags_save, F.data.startswith('setup:hashtags:') )
+    router.callback_query.register( MiscController.daily_limit, F.data == 'mc:daily' )
     router.callback_query.register( DownloadsController.download_cancel, F.data.startswith('cancel_task:') )
     router.callback_query.register( WindowDownloadsController.window_download_cancel, F.data=='wdc:cancel' )
     router.callback_query.register( InlineDownloadsController.inline_download_start, F.data=='idc:download' )
@@ -82,6 +99,7 @@ async def register_bot_handlers() -> None:
     router.callback_query.register( ExistentAuthController.existent_auth_cancel, F.data == 'eac:cancel' )
     router.callback_query.register( ExistentAuthController.existent_auths_map, F.data.startswith('eac:') )
     router.callback_query.register( AdminController.admin_queue_pass, F.data == 'aq:pass' )
+    router.callback_query.register( AdminController.admin_queue_close, F.data == 'aq:close' )
     router.callback_query.register( AdminController.admin_queue_refresh, F.data == 'aq:refresh' )
     router.callback_query.register( AdminController.admin_queue_cancel, F.data.startswith('aq:cancel:') )
 
@@ -90,34 +108,7 @@ async def register_bot_handlers() -> None:
 async def register_web_part(app: FastAPI) -> None:
     print('register_web_part')
 
-    config_path = []
-
-    cwd = os.getcwd()
-
-    config_path.append(cwd)
-
-    if not cwd.endswith('app/') and not cwd.endswith('app'):
-        config_path.append('app')
-
-    web_dir = os.path.join( *config_path, "web" )
-    templates = Jinja2Templates(directory=web_dir)
-    templates.env.filters["human_size"] = tools.human_size
-    templates.env.filters["punydecode"] = tools.punydecode
-    templates.env.filters["hideui"] = tools.hideui
     app.mount(f"/web", StaticFiles(directory=web_dir), name="static")
-
-    ####
-
-    @app.get('/usage', response_class=HTMLResponse)
-    async def render_usage( request: Request ):
-        stats = await Interconnect.GetUsage()
-        # print(stats)
-        return templates.TemplateResponse("usage/index.html", {"request":request, "stats":stats, "groups":GC.groups})
-
-    @app.get('/stats', response_class=HTMLResponse)
-    async def render_stats( request: Request ):
-        stats = await Interconnect.GetStats()
-        return templates.TemplateResponse("stats/index.html", {"request":request, "stats":stats, "groups":GC.groups})
 
     ####
 
@@ -181,6 +172,19 @@ async def register_web_part(app: FastAPI) -> None:
         return ''
 
 async def register_api_handlers(app: FastAPI) -> None:
+
+    app.mount(f"/web", StaticFiles(directory=web_dir), name="static")
+
+    @app.get('/usage', response_class=HTMLResponse)
+    async def render_usage( request: Request ):
+        stats = await Interconnect.GetUsage()
+        # print(stats)
+        return templates.TemplateResponse("usage/index.html", {"request":request, "stats":stats, "groups":GC.groups})
+
+    @app.get('/stats', response_class=HTMLResponse)
+    async def render_stats( request: Request ):
+        stats = await Interconnect.GetStats()
+        return templates.TemplateResponse("stats/index.html", {"request":request, "stats":stats, "groups":GC.groups})
 
     @app.post('/download/status')
     async def download_status( status: schemas.DownloadStatus ) -> bool:
