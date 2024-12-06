@@ -53,4 +53,8 @@ class MiscController:
 
         usage = await DB.getUserUsage( user_id=callback_query.from_user.id )
 
-        await BOT.send_message( chat_id=callback_query.message.chat.id, text=f'Дневной лимит: {usage} / {GC.free_limit}' )
+        acl = await DB.getACL( user_id=callback_query.from_user.id )
+
+        limit = acl.getLimit() if acl else GC.free_limit
+
+        await BOT.send_message( chat_id=callback_query.message.chat.id, text=f'Дневной лимит: {usage} / {limit}' )

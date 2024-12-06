@@ -88,6 +88,32 @@ class DataBase(object):
             await self.Stop()
             await self.Start()
 
+    async def getACL(
+        self,
+        user_id: int
+    ) -> models.ACL|None:
+        session = self._session()
+        try:
+            query = session.execute(
+                select(models.ACL)\
+                .where(
+                    models.ACL.user_id==user_id
+                )
+            )
+            result = query.scalar_one_or_none()
+            session.close()
+            if not result:
+                return None
+            return result
+        except OperationalError as e:
+            await asyncio.sleep(1)
+            traceback.print_exc()
+            return await self.getACL( user_id=user_id )
+        except Exception as e:
+            raise e
+        finally:
+            session.close()
+
     async def saveUser(
         self,
         user: models.User
@@ -205,7 +231,7 @@ class DataBase(object):
             raise e
         finally:
             session.close()
-    
+
     async def getUserAuthedSites(
         self,
         user_id: int
@@ -353,10 +379,15 @@ class DataBase(object):
                     models.UserStat.day==datetime.today().date()
                 )
             )
-            result = query.one_or_none()
+            result = query.fetchone()
+            result = list( result )
             session.close()
             if not result:
                 return 0
+            if result[0] == None:
+                result[0] = 0
+            if result[1] == None:
+                result[1] = 0
             result = result[0] + result[1]
             return result
         except OperationalError as e:

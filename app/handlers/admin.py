@@ -5,9 +5,9 @@ from aiohttp.client_exceptions import ClientError
 from aiogram import types
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from aiogram.exceptions import TelegramRetryAfter, TelegramMigrateToChat, TelegramBadRequest, TelegramNotFound, TelegramConflictError, TelegramUnauthorizedError, TelegramForbiddenError, TelegramServerError, RestartingTelegram, TelegramAPIError, TelegramEntityTooLarge, ClientDecodeError
-from app import schemas
+from app import schemas, variables
 from app.configs import GC
-from app.objects import BOT, DB
+from app.objects import BOT, RD
 from app.classes.interconnect import Interconnect
 
 logger = logging.getLogger( __name__ )
@@ -27,7 +27,8 @@ class AdminController:
 
         await BOT.set_my_commands(commands=commands, scope=types.BotCommandScopeDefault())
 
-        commands.append( types.BotCommand( command='admin_reload', description='Перезагрузка конфигурации' ) )
+        commands.append( types.BotCommand( command='admin_reload_dc', description='Перезагрузка конфигурации DC' ) )
+        commands.append( types.BotCommand( command='admin_reload_bot', description='Перезагрузка конфигурации бота' ) )
         commands.append( types.BotCommand( command='admin_queue', description='Очередь' ) )
 
         for admin_id in GC.admins:
@@ -93,12 +94,25 @@ class AdminController:
             await BOT.send_message( chat_id=message.chat.id, reply_to_message_id=message.message_id, text="Ошибка: Не могу удалить сообщение" )
 
     @staticmethod
-    async def admin_reload_command( message: types.Message ) -> None:
+    async def admin_reload_dc_command( message: types.Message ) -> None:
 
         if message.from_user.id not in GC.admins:
             return await BOT.send_message( chat_id=message.chat.id, text="Недостаточно прав" )
 
         await Interconnect.ReloadConfig()
+
+        await AdminController.set_menu()
+
+        await RD.delete(variables.ACTIVE_SITES_CACHE_KEY)
+        await RD.delete(variables.AUTH_SITES_CACHE_KEY)
+
+    async def admin_reload_bot_command( message: types.Message ) -> None:
+
+        if message.from_user.id not in GC.admins:
+            return await BOT.send_message( chat_id=message.chat.id, text="Недостаточно прав" )
+
+        await RD.delete(variables.ACTIVE_SITES_CACHE_KEY)
+        await RD.delete(variables.AUTH_SITES_CACHE_KEY)
 
         await AdminController.set_menu()
 

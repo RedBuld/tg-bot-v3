@@ -3,6 +3,7 @@ from sqlalchemy import Integer, BigInteger, Boolean, String, Text, UniqueConstra
 from sqlalchemy.orm import mapped_column
 from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import Mapped
+from sqlalchemy.dialects.mysql import ENUM
 
 Base = declarative_base()
 
@@ -77,10 +78,31 @@ class InlineDownloadRequest(Base):
 
 class ACL(Base):
 	__tablename__ = 'acl'
-	__table_args__ = ( UniqueConstraint("user_id", "premium", name="user_premium_index"), UniqueConstraint("user_id", "banned", name="user_banned_index") )
 
 	user_id: Mapped[int] =         mapped_column( 'user_id', BigInteger, primary_key=True, nullable=False, index=True )
 	premium: Mapped[bool] =        mapped_column( 'premium', Boolean, default=False )
+	p_type: Mapped[str] =          mapped_column( 'p_type', ENUM('usage','limit') )
+	p_limit: Mapped[int] =         mapped_column( 'p_limit', Text )
+	p_reason: Mapped[str] =        mapped_column( 'p_reason', Text )
+	p_until: Mapped[datetime] =    mapped_column( 'p_until', DateTime, default=datetime.now )
 	banned: Mapped[bool] =         mapped_column( 'banned', Boolean, default=False )
-	reason: Mapped[str] =          mapped_column( 'reason', Text )
-	until: Mapped[datetime] =      mapped_column( 'until', DateTime, default=datetime.now )
+	b_type: Mapped[str] =          mapped_column( 'b_type', ENUM('usage','limit') )
+	b_reason: Mapped[str] =        mapped_column( 'b_reason', Text )
+	b_limit: Mapped[int] =         mapped_column( 'b_limit', Text )
+	b_until: Mapped[datetime] =    mapped_column( 'b_until', DateTime, default=datetime.now )
+
+	def getLimit( self ):
+		if self.banned:
+			if self.b_until < datetime.now():
+				return None
+			if self.b_type == 'usage':
+				return -1
+			if self.b_type == 'limit':
+				return self.b_limit
+		if self.premium:
+			if self.p_until < datetime.now():
+				return None
+			if self.p_type == 'usage':
+				return 1000
+			if self.p_type == 'limit':
+				return self.p_limit

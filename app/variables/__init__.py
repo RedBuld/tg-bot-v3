@@ -26,3 +26,8 @@ class HashtagsModes():
     no: str = "Нет"
     bf: str = "BooksFine"
     gf: str = "Цокольный этаж"
+
+ACTIVE_SITES_CACHE_KEY = "cache_active_sites"
+AUTH_SITES_CACHE_KEY = "cache_sites_with_auth"
+USAGE_CACHE_KEY = "cache_usage"
+STATS_CACHE_KEY = "cache_stats"

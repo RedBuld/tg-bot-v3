@@ -15,11 +15,11 @@
 					<th colspan="5">Статистика за сегодня</th>
 				</tr>
 				<tr>
-					<th>Сайт</th>
+					<th width="50%">Сайт</th>
 					<th>{# Успешных скачиваний #}✔️</th>
 					<th>{# Проваленных скачиваний #}❌</th>
 					<th>Объем</th>
-					{#<th>Накладные расходы</th>#}
+					<th>Накладные расходы</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -29,7 +29,7 @@
 					<td>{{ res['success'] }}</td>
 					<td>{{ res['failure'] }}</td>
 					<td>{{ res['orig_size']|human_size }}</td>
-					{# <td>{{ res['oper_size']|human_size }}</td> #}
+					<td>{{ res['oper_size']|human_size }}</td>
 				</tr>
 				{% endfor %}
 				<tr>
@@ -38,7 +38,7 @@
 					<td>{{ stats['current_day']['total']['success'] }}</td>
 					<td>{{ stats['current_day']['total']['failure'] }}</td>
 					<td>{{ stats['current_day']['total']['orig_size']|human_size }}</td>
-					{# <td>{{ stats['current_day']['total']['oper_size']|human_size }}</td> #}
+					<td>{{ stats['current_day']['total']['oper_size']|human_size }}</td>
 				</tr>
 			</tbody>
 		</table>
@@ -51,11 +51,11 @@
 					<th colspan="5">Статистика за вчера</th>
 				</tr>
 				<tr>
-					<th>Сайт</th>
+					<th width="50%">Сайт</th>
 					<th>{# Успешных скачиваний #}✔️</th>
 					<th>{# Проваленных скачиваний #}❌</th>
 					<th>Объем</th>
-					{#<th>Накладные расходы</th>#}
+					<th>Накладные расходы</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -65,7 +65,7 @@
 					<td>{{ res['success'] }}</td>
 					<td>{{ res['failure'] }}</td>
 					<td>{{ res['orig_size']|human_size }}</td>
-					{# <td>{{ res['oper_size']|human_size }}</td> #}
+					<td>{{ res['oper_size']|human_size }}</td>
 				</tr>
 				{% endfor %}
 				<tr>
@@ -74,7 +74,7 @@
 					<td>{{ stats['previous_day']['total']['success'] }}</td>
 					<td>{{ stats['previous_day']['total']['failure'] }}</td>
 					<td>{{ stats['previous_day']['total']['orig_size']|human_size }}</td>
-					{# <td>{{ stats['previous_day']['total']['oper_size']|human_size }}</td> #}
+					<td>{{ stats['previous_day']['total']['oper_size']|human_size }}</td>
 				</tr>
 			</tbody>
 		</table>
@@ -87,11 +87,11 @@
 					<th colspan="5">Статистика за месяц</th>
 				</tr>
 				<tr>
-					<th>Сайт</th>
+					<th width="50%">Сайт</th>
 					<th>{# Успешных скачиваний #}✔️</th>
 					<th>{# Проваленных скачиваний #}❌</th>
 					<th>Объем</th>
-					{#<th>Накладные расходы</th>#}
+					<th>Накладные расходы</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -101,7 +101,7 @@
 					<td>{{ res['success'] }}</td>
 					<td>{{ res['failure'] }}</td>
 					<td>{{ res['orig_size']|human_size }}</td>
-					{# <td>{{ res['oper_size']|human_size }}</td> #}
+					<td>{{ res['oper_size']|human_size }}</td>
 				</tr>
 				{% endfor %}
 				<tr>
@@ -110,7 +110,7 @@
 					<td>{{ stats['current_month']['total']['success'] }}</td>
 					<td>{{ stats['current_month']['total']['failure'] }}</td>
 					<td>{{ stats['current_month']['total']['orig_size']|human_size }}</td>
-					{# <td>{{ stats['current_month']['total']['oper_size']|human_size }}</td> #}
+					<td>{{ stats['current_month']['total']['oper_size']|human_size }}</td>
 				</tr>
 			</tbody>
 		</table>
@@ -123,11 +123,11 @@
 					<th colspan="5">Статистика за год</th>
 				</tr>
 				<tr>
-					<th>Сайт</th>
+					<th width="50%">Сайт</th>
 					<th>{# Успешных скачиваний #}✔️</th>
 					<th>{# Проваленных скачиваний #}❌</th>
 					<th>Объем</th>
-					{#<th>Накладные расходы</th>#}
+					<th>Накладные расходы</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -137,7 +137,7 @@
 					<td>{{ res['success'] }}</td>
 					<td>{{ res['failure'] }}</td>
 					<td>{{ res['orig_size']|human_size }}</td>
-					{# <td>{{ res['oper_size']|human_size }}</td> #}
+					<td>{{ res['oper_size']|human_size }}</td>
 				</tr>
 				{% endfor %}
 				<tr>
@@ -145,7 +145,7 @@
 					<td>{{ stats['current_year']['total']['success'] }}</td>
 					<td>{{ stats['current_year']['total']['failure'] }}</td>
 					<td>{{ stats['current_year']['total']['orig_size']|human_size }}</td>
-					{# <td>{{ stats['current_year']['total']['oper_size']|human_size }}</td> #}
+					<td>{{ stats['current_year']['total']['oper_size']|human_size }}</td>
 				</tr>
 			</tbody>
 		</table>
@@ -158,11 +158,11 @@
 					<th colspan="3">Статистика за прошлый год</th>
 				</tr>
 				<tr>
-					<th>Сайт</th>
+					<th width="50%">Сайт</th>
 					<th>{# Успешных скачиваний #}✔️</th>
 					<th>{# Проваленных скачиваний #}❌</th>
 					<th>Объем</th>
-					{#<th>Накладные расходы</th>#}
+					<th>Накладные расходы</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -172,7 +172,7 @@
 					<td>{{ res['success'] }}</td>
 					<td>{{ res['failure'] }}</td>
 					<td>{{ res['orig_size']|human_size }}</td>
-					{# <td>{{ res['oper_size']|human_size }}</td> #}
+					<td>{{ res['oper_size']|human_size }}</td>
 				</tr>
 				{% endfor %}
 				<tr>
@@ -180,7 +180,7 @@
 					<td>{{ stats['previous_year']['total']['success'] }}</td>
 					<td>{{ stats['previous_year']['total']['failure'] }}</td>
 					<td>{{ stats['previous_year']['total']['orig_size']|human_size }}</td>
-					{# <td>{{ stats['previous_year']['total']['oper_size']|human_size }}</td> #}
+					<td>{{ stats['previous_year']['total']['oper_size']|human_size }}</td>
 				</tr>
 			</tbody>
 		</table>
@@ -192,20 +192,29 @@
 					<th colspan="5">Статистика всего</th>
 				</tr>
 				<tr>
-					<th>Сайт</th>
+					<th width="50%">Сайт</th>
 					<th>{# Успешных скачиваний #}✔️</th>
 					<th>{# Проваленных скачиваний #}❌</th>
 					<th>Объем</th>
-					{#<th>Накладные расходы</th>#}
+					<th>Накладные расходы</th>
 				</tr>
 			</thead>
 			<tbody>
+				{% for res in stats['total']['elements'] %}
 				<tr>
-					<td>Всего ( {{ '%0.1f' % ( stats['total']['success'] / stats['total']['failure'] ) }} : 1 )</td>
-					<td>{{ stats['total']['success'] }}</td>
-					<td>{{ stats['total']['failure'] }}</td>
-					<td>{{ stats['total']['orig_size']|human_size }}</td>
-					{# <td>{{ stats['total']['oper_size']|human_size }}</td> #}
+					<td><a target="_blank" href="http://{{ res['site'] }}">{{ res['site']|punydecode }}</a></td>
+					<td>{{ res['success'] }}</td>
+					<td>{{ res['failure'] }}</td>
+					<td>{{ res['orig_size']|human_size }}</td>
+					<td>{{ res['oper_size']|human_size }}</td>
+				</tr>
+				{% endfor %}
+				<tr>
+					<td>Всего ( {{ '%0.1f' % ( stats['total']['total']['success'] / stats['total']['total']['failure'] ) }} : 1 )</td>
+					<td>{{ stats['total']['total']['success'] }}</td>
+					<td>{{ stats['total']['total']['failure'] }}</td>
+					<td>{{ stats['total']['total']['orig_size']|human_size }}</td>
+					<td>{{ stats['total']['total']['oper_size']|human_size }}</td>
 				</tr>
 			</tbody>
 		</table>

@@ -18,9 +18,8 @@ class Interconnect:
 
     @staticmethod
     async def GetSitesActive() -> List[ str ] | str:
-        cache_key = "cache_active_sites"
         model = schemas.SiteListResponse
-        cached = await RD.get(cache_key)
+        cached = await RD.get(variables.ACTIVE_SITES_CACHE_KEY)
 
         if not cached:
             _attempts = 0
@@ -38,7 +37,7 @@ class Interconnect:
                     await asyncio.sleep(5)
 
             cached = model.model_dump_json()
-            await RD.setex(cache_key, 60, cached)
+            await RD.setex(variables.ACTIVE_SITES_CACHE_KEY, 60, cached)
         else:
             model = model.model_validate_json( cached )
 
@@ -46,9 +45,8 @@ class Interconnect:
 
     @staticmethod
     async def GetSitesWithAuth() -> List[str]:
-        cache_key = "cache_sites_with_auth"
         model = schemas.SiteListResponse
-        cached = await RD.get(cache_key)
+        cached = await RD.get(variables.AUTH_SITES_CACHE_KEY)
 
         if not cached:
             _attempts = 0
@@ -66,7 +64,7 @@ class Interconnect:
                     await asyncio.sleep(5)
 
             cached = model.model_dump_json()
-            await RD.setex(cache_key, 60, cached)
+            await RD.setex(variables.AUTH_SITES_CACHE_KEY, 60, cached)
         else:
             model = model.model_validate_json( cached )
 
@@ -102,9 +100,8 @@ class Interconnect:
 
     @staticmethod
     async def GetUsage(use_cache: bool = True) -> Dict[ str, Any ]:
-        cache_key = "cache_usage"
         if use_cache:
-            cached = await RD.get(cache_key)
+            cached = await RD.get(variables.USAGE_CACHE_KEY)
         else:
             cached = None
 
@@ -123,7 +120,7 @@ class Interconnect:
                     await asyncio.sleep(1)
             
             cached = ujson.dumps(stats)
-            await RD.setex(cache_key, 5, cached)
+            await RD.setex(variables.USAGE_CACHE_KEY, 5, cached)
         else:
             stats = ujson.loads(cached)
 
@@ -131,8 +128,7 @@ class Interconnect:
 
     @staticmethod
     async def GetStats() -> Dict[ str, Any ]:
-        cache_key = "cache_stats"
-        cached = await RD.get(cache_key)
+        cached = await RD.get(variables.STATS_CACHE_KEY)
 
         if not cached:
             stats = {}
@@ -149,7 +145,7 @@ class Interconnect:
                     await asyncio.sleep(1)
             
             cached = ujson.dumps(stats)
-            await RD.setex(cache_key, 5, cached)
+            await RD.setex(variables.STATS_CACHE_KEY, 5, cached)
         else:
             stats = ujson.loads(cached)
 
@@ -235,6 +231,7 @@ class Interconnect:
     async def CheckLink( link: str ) -> bool:
         cache_key = "check_link_" + str( hashlib.md5( link.encode('utf-8') ).hexdigest() )
         allowed = await RD.getex(cache_key)
+        print('CheckLink',link,allowed)
 
         async def _check_site(session: aiohttp.ClientSession, link: str) -> int|str:
             async with session.get( link, verify_ssl=False ) as response:
@@ -242,6 +239,7 @@ class Interconnect:
                     return 0
                 else:
                     text = await response.text()
+                    print('_check_site_text',text)
                     url = str(response.real_url)
                     if 'mature?path=' in url:
                         return url
@@ -268,9 +266,11 @@ class Interconnect:
                 while _attempts < 5:
                     try:
                         allowed = await _check_site(session, link)
+                        print('_check_site 1',allowed)
                         if type(allowed) == str:
                             test = await _rulate_mature(session, allowed)
                             allowed = await _check_site(session, link)
+                            print('_check_site 2',allowed)
                         _attempts = 5
                     except:
                         traceback.print_exc()

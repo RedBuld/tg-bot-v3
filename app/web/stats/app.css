@@ -57,6 +57,7 @@ body {
 	border: 1px solid var(--tg-theme-hint-color, #bbb);
 	border-collapse: collapse;
 	margin: 0px 0px 1.5rem 0px;
+	table-layout: fixed;
 }
 #download_stats table td,
 #download_stats table th {
