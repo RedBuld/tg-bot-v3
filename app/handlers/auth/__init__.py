@@ -1,12 +1,9 @@
 import idna
 import logging
-import ujson
-import aiohttp
-from aiogram import Dispatcher, Router, F, types
-from aiogram.filters import Command
+from aiogram import types
 from aiogram.fsm.context import FSMContext
 from aiogram.utils.keyboard import InlineKeyboardBuilder
-from app import variables, schemas
+from app import variables
 from app.configs import GC
 from app.objects import DB, RD, BOT
 from app.classes.interconnect import Interconnect

@@ -62,9 +62,15 @@ class DataBase(object):
                     )
                     self._session = sessionmaker(self._engine, expire_on_commit=False)
 
-                await self.createDB()
+                try:
+                    await self.createDB()
+                except Exception as e:
+                    traceback.print_exc()
+                    raise variables.UpdateDBError()
                 logger.info('DB: started')
                 return
+            except variables.UpdateDBError:
+                break
             except:
                 await asyncio.sleep(1)
                 continue
@@ -315,7 +321,7 @@ class DataBase(object):
         self,
         user_id: int,
         auth_id: int
-        ) -> None:
+    ) -> None:
         session = self._session()
         try:
             session.execute(
@@ -331,7 +337,7 @@ class DataBase(object):
         except OperationalError as e:
             await asyncio.sleep(1)
             traceback.print_exc()
-            return await self.deleteUserAuth( user_id, user_id=user_id, auth_id=auth_id )
+            return await self.deleteUserAuth( user_id=user_id, auth_id=auth_id )
         except Exception as e:
             raise e
         finally:
@@ -401,8 +407,10 @@ class DataBase(object):
 
     #
 
-    async def UpdateUserStat(self, result: dict) -> None:
-
+    async def UpdateUserStat(
+        self,
+        result: dict
+    ) -> None:
         if result['status'] == variables.DownloaderStep.CANCELLED:
             return
 
@@ -435,7 +443,7 @@ class DataBase(object):
         except OperationalError as e:
             await asyncio.sleep(1)
             traceback.print_exc()
-            return await self.UpdateUserStat(result)
+            return await self.UpdateUserStat( result=result )
         except Exception as e:
             raise e
         finally:
@@ -546,6 +554,80 @@ class DataBase(object):
             await asyncio.sleep(1)
             traceback.print_exc()
             return await self.getAbandonedInlineDownloadRequests( bot_id=bot_id )
+        except Exception as e:
+            raise e
+        finally:
+            session.close()
+    
+    ###
+
+    async def saveSiteConfig(
+        self,
+        config: models.SiteConfig
+    ) -> models.SiteConfig:
+        session = self._session()
+        try:
+            session.add(config)
+            session.commit()
+            session.flush()
+            session.close()
+            return config
+        except OperationalError as e:
+            await asyncio.sleep(1)
+            traceback.print_exc()
+            return await self.saveSiteConfig( user_id=user_id, config=config )
+        except Exception as e:
+            raise e
+        finally:
+            session.close()
+
+    async def deleteSiteConfig(
+        self,
+        user_id: int,
+        site: str
+    ) -> None:
+        session = self._session()
+        try:
+            session.execute(
+                delete(models.SiteConfig)\
+                    .where(
+                        models.SiteConfig.user_id==user_id,
+                        models.SiteConfig.site==site
+                    )
+                )
+            session.commit()
+            session.flush()
+            session.close()
+        except OperationalError as e:
+            await asyncio.sleep(1)
+            traceback.print_exc()
+            return await self.deleteSiteConfig( user_id=user_id, site=site )
+        except Exception as e:
+            raise e
+        finally:
+            session.close()
+
+    async def getSiteConfig(
+        self,
+        user_id: int,
+        site: str
+    ) -> models.SiteConfig:
+        session = self._session()
+        try:
+            query = session.execute(
+                select(models.SiteConfig)\
+                .where(
+                    models.SiteConfig.user_id==user_id,
+                    models.SiteConfig.site==site
+                )
+            )
+            result = query.scalar_one_or_none()
+            session.close()
+            return result
+        except OperationalError as e:
+            await asyncio.sleep(1)
+            traceback.print_exc()
+            return await self.getSiteConfig( user_id=user_id, site=site )
         except Exception as e:
             raise e
         finally:

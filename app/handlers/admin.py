@@ -19,9 +19,10 @@ class AdminController:
 
         commands = [
             types.BotCommand( command='sites', description='Посмотреть доступные сайты' ),
-            types.BotCommand( command='auth', description='Добавить авторизацию' ),
             types.BotCommand( command='auths', description='Список авторизаций' ),
-            types.BotCommand( command='setup', description='Настройки' ),
+            types.BotCommand( command='auth', description='Добавить авторизацию' ),
+            types.BotCommand( command='setup_global', description='Настройки аккаунта' ),
+            types.BotCommand( command='setup_sites', description='Настройки для сайтов' ),
             types.BotCommand( command='stats', description='Статистика' )
         ]
 

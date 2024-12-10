@@ -17,6 +17,7 @@ class GlobalConfig():
     admins:       List[int] = []
     encrypt_key:  bytes
     mask:         re.Pattern = re.compile("https?:\\/\\/(www\\.|m\\.|ru\\.)*(?P<site>[^\\/]+)\\/.+")
+    proxy:        re.Pattern = re.compile("(https?|socks[4,5]):\\/\\/\d{1,3}\\.\d{1,3}\\.\d{1,3}\\.\d{1,3}:\d{2,5}\\/")
     inited:       bool = False
 
     def __init__( self ):

@@ -6,7 +6,7 @@
 	<link rel="stylesheet" href="/web/download/app.css?v=2">
 	<script src="https://telegram.org/js/telegram-web-app.js" defer></script>
 	<script>window.payload={{payload|tojson}};</script>
-	<script src="/web/download/app.js?v=7" defer></script>
+	<script src="/web/download/app.js?v=8" defer></script>
 </head>
 <body>
 	{% if not payload %}
@@ -27,7 +27,7 @@
 		<div class="form-row select">
 			<select class="input" id="auth" name="auth">
 				{% for k,v in payload['use_auth'].items() %}
-				<option value="{{k}}">{{v}}</option>
+				<option value="{{k}}" {% if payload['auth'] and k == payload['auth'] %} selected{% endif %}>{{v}}</option>
 				{% endfor %}
 			</select>
 			<label for="auth" class="label">Авторизация</label>
@@ -49,7 +49,7 @@
 		{% if ( ( 'use_images' in payload ) and payload['use_images'] ) %}
 		<div class="form-row checkbox">
 			<label class="switch">
-				<input class="input" type="checkbox" id="images" value="1" name="images" {% if payload['images'] %}checked{% endif %} placeholder=" ">
+				<input class="input" type="checkbox" id="images" value="1" name="images" {% if payload['images'] %}checked{% endif %}>
 				<div class="slider"></div>
 			</label>
 			<label for="images" class="label">Скачивать картинки</label>
@@ -58,12 +58,45 @@
 		{% if ( ( 'use_cover' in payload ) and payload['use_cover'] ) %}
 		<div class="form-row checkbox">
 			<label class="switch">
-				<input class="input" type="checkbox" id="cover" value="1" name="cover" {% if payload['cover'] %}checked{% endif %} placeholder=" ">
+				<input class="input" type="checkbox" id="cover" value="1" name="cover" {% if payload['cover'] %}checked{% endif %}>
 				<div class="slider"></div>
 			</label>
 			<label for="cover" class="label">Скачивать обложку</label>
 		</div>
 		{% endif %}
+		{#  #}
+		<div class="form-row">
+			<input class="input" type="text" id="proxy" name="proxy" placeholder=" ">
+			<label for="proxy" class="label">Прокси</label>
+			<p class="form-row-description">
+				<div>Формат:</div>
+				<div><em>http://host:port/</em></div>
+				<div><em>https://host:port/</em></div>
+				<div><em>socks4://host:port/</em></div>
+				<div><em>socks5://host:port/</em></div>
+			</p>
+		</div>
+		<div class="form-row checkbox">
+			<label class="switch">
+				<input class="input" type="radio" id="hashtags_no" value="no" name="hashtags" {% if payload['hashtags'] == 'no' %}checked{% endif %}>
+				<div class="slider"></div>
+			</label>
+			<label for="cover" class="label">Хэштэги: нет</label>
+		</div>
+		<div class="form-row checkbox">
+			<label class="switch">
+				<input class="input" type="radio" id="hashtags_bf" value="bf" name="hashtags" {% if payload['hashtags'] == 'bf' %}checked{% endif %}>
+				<div class="slider"></div>
+			</label>
+			<label for="cover" class="label">Хэштэги: BooksFine</label>
+		</div>
+		<div class="form-row checkbox">
+			<label class="switch">
+				<input class="input" type="radio" id="hashtags_gf" value="gf" name="hashtags" {% if payload['hashtags'] == 'gf' %}checked{% endif %}>
+				<div class="slider"></div>
+			</label>
+			<label for="cover" class="label">Хэштэги: Цокольный этаж</label>
+		</div>
 		<div class="settings-item-description">
 			<hr>
 			<h3>Маленький FAQ</h3>

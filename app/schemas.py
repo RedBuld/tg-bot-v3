@@ -36,7 +36,8 @@ class DownloadSetupRequest(BaseModel):
     cover:      bool | None = False
     images:     bool | None = False
     proxy:      str | None = ''
-    hashtags:   str = 'no'
+    hashtags:   str | None = 'no'
+    filename:   str | None = None
 
 class DownloadRequest(BaseModel):
     task_id:    int | None = None
@@ -55,7 +56,8 @@ class DownloadRequest(BaseModel):
     images:     bool | None = False
     cover:      bool | None = False
     proxy:      str | None = ""
-    hashtags:   str = 'no'
+    hashtags:   str | None = "no"
+    filename:   str | None = None
 
     class Config:
         from_attributes = True

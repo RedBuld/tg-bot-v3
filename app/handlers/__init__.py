@@ -1,7 +1,7 @@
 import os
 import ujson
 import asyncio
-from aiogram import Router, F
+from aiogram import Router, F, types
 from aiogram.filters import Command
 from cryptography.fernet import Fernet
 from fastapi import FastAPI, Request
@@ -10,7 +10,8 @@ from starlette.staticfiles import StaticFiles
 from starlette.templating import Jinja2Templates
 
 from .admin import AdminController
-from .setup import AccountSetupController
+from .setup.account import AccountSetupController
+from .setup.sites import SitesSetupController
 from .downloads import DownloadsController
 from .downloads.window import WindowDownloadsController
 from .downloads.inline import InlineDownloadsController
@@ -44,6 +45,10 @@ templates.env.filters["punydecode"] = tools.punydecode
 templates.env.filters["hideui"] = tools.hideui
 templates.env.filters["pretty_json"] = tools.pretty_json
 
+async def dumper( callback_query: types.CallbackQuery ):
+    await callback_query.answer()
+    print(callback_query.data)
+
 async def register_bot_handlers() -> None:
 
     await AdminController.set_menu()
@@ -51,7 +56,8 @@ async def register_bot_handlers() -> None:
     router = Router()
 
     router.message.register( AccountSetupController.start_command, Command( commands='start' ) )
-    router.message.register( AccountSetupController.setup_command, Command( commands='setup' ) )
+    router.message.register( AccountSetupController.setup_command, Command( commands='setup_global' ) )
+    router.message.register( SitesSetupController.setup_command, Command( commands='setup_sites' ) )
     router.message.register( MiscController.uid_command, Command( commands='uid' ) )
     router.message.register( MiscController.sites_command, Command( commands='sites' ) )
     router.message.register( MiscController.stats_command, Command( commands='stats' ) )
@@ -65,22 +71,43 @@ async def register_bot_handlers() -> None:
     router.message.register( AdminController.admin_queue, Command( commands='admin_queue' ) )
     router.message.register( InlineAuthController.inline_auth_login, variables.AuthForm.login )
     router.message.register( InlineAuthController.inline_auth_password, variables.AuthForm.password )
+    router.message.register( AccountSetupController.setup_filename_save, variables.SetupAccountForm.filename )
     router.message.register( InlineDownloadsController.inline_download_setup_paging_start_page, variables.InlineDownloadForm.start_page )
     router.message.register( InlineDownloadsController.inline_download_setup_paging_end_page, variables.InlineDownloadForm.end_page )
+    router.message.register( InlineDownloadsController.inline_download_setup_proxy_apply, variables.InlineDownloadForm.proxy )
+    router.message.register( SitesSetupController.setup_filename_save, variables.SetupSiteForm.filename )
     router.message.register( DownloadsController.maybe_init_download, lambda message: message.content_type == 'text' and not message.text.startswith( '/' ) )
 
-    router.callback_query.register( AccountSetupController.account_setup_start, F.data=='setup:start' )
-    router.callback_query.register( AccountSetupController.account_setup_cancel, F.data=='setup:cancel' )
-    router.callback_query.register( AccountSetupController.account_setup_mode, F.data=='setup:mode' )
-    router.callback_query.register( AccountSetupController.account_setup_format, F.data=='setup:format' )
-    router.callback_query.register( AccountSetupController.account_setup_cover, F.data=='setup:cover' )
-    router.callback_query.register( AccountSetupController.account_setup_images, F.data=='setup:images' )
-    router.callback_query.register( AccountSetupController.account_setup_hashtags, F.data=='setup:hashtags' )
-    router.callback_query.register( AccountSetupController.account_setup_mode_save, F.data.startswith('setup:mode:') )
-    router.callback_query.register( AccountSetupController.account_setup_format_save, F.data.startswith('setup:format:') )
-    router.callback_query.register( AccountSetupController.account_setup_cover_save, F.data.startswith('setup:cover:') )
-    router.callback_query.register( AccountSetupController.account_setup_images_save, F.data.startswith('setup:images:') )
-    router.callback_query.register( AccountSetupController.account_setup_hashtags_save, F.data.startswith('setup:hashtags:') )
+    router.callback_query.register( AccountSetupController.setup_start, F.data=='setup_global:start' )
+    router.callback_query.register( AccountSetupController.setup_cancel, F.data=='setup_global:cancel' )
+    router.callback_query.register( AccountSetupController.setup_mode, F.data=='setup_global:mode' )
+    router.callback_query.register( AccountSetupController.setup_format, F.data=='setup_global:format' )
+    router.callback_query.register( AccountSetupController.setup_cover, F.data=='setup_global:cover' )
+    router.callback_query.register( AccountSetupController.setup_images, F.data=='setup_global:images' )
+    router.callback_query.register( AccountSetupController.setup_hashtags, F.data=='setup_global:hashtags' )
+    router.callback_query.register( AccountSetupController.setup_filename, F.data=='setup_global:filename' )
+    router.callback_query.register( AccountSetupController.setup_mode_save, F.data.startswith('setup_global:mode:') )
+    router.callback_query.register( AccountSetupController.setup_format_save, F.data.startswith('setup_global:format:') )
+    router.callback_query.register( AccountSetupController.setup_cover_save, F.data.startswith('setup_global:cover:') )
+    router.callback_query.register( AccountSetupController.setup_images_save, F.data.startswith('setup_global:images:') )
+    router.callback_query.register( AccountSetupController.setup_hashtags_save, F.data.startswith('setup_global:hashtags:') )
+    router.callback_query.register( AccountSetupController.setup_filename_save_cb, F.data.startswith('setup_global:filename:') )
+    router.callback_query.register( SitesSetupController.setup_start, F.data.startswith('setup_sites:select_site:') )
+    router.callback_query.register( SitesSetupController.setup_cancel, F.data=='setup_sites:cancel' )
+    router.callback_query.register( SitesSetupController.setup_ignore, F.data=='setup_sites:ignore' )
+    router.callback_query.register( SitesSetupController.setup_reset, F.data.startswith('setup_sites:reset:') )
+    router.callback_query.register( SitesSetupController.setup_auth, F.data.startswith('setup_sites:select_auth:') )
+    router.callback_query.register( SitesSetupController.setup_format, F.data.startswith('setup_sites:select_format:') )
+    router.callback_query.register( SitesSetupController.setup_cover, F.data.startswith('setup_sites:select_cover:') )
+    router.callback_query.register( SitesSetupController.setup_images, F.data.startswith('setup_sites:select_images:') )
+    router.callback_query.register( SitesSetupController.setup_hashtags, F.data.startswith('setup_sites:select_hashtags:') )
+    router.callback_query.register( SitesSetupController.setup_filename, F.data.startswith('setup_sites:select_filename:') )
+    router.callback_query.register( SitesSetupController.setup_auth_save, F.data.startswith('setup_sites:save_auth:') )
+    router.callback_query.register( SitesSetupController.setup_format_save, F.data.startswith('setup_sites:save_format:') )
+    router.callback_query.register( SitesSetupController.setup_cover_save, F.data.startswith('setup_sites:save_cover:') )
+    router.callback_query.register( SitesSetupController.setup_images_save, F.data.startswith('setup_sites:save_images:') )
+    router.callback_query.register( SitesSetupController.setup_hashtags_save, F.data.startswith('setup_sites:save_hashtags:') )
+    router.callback_query.register( SitesSetupController.setup_filename_save_cb, F.data.startswith('setup_sites:save_filename:') )
     router.callback_query.register( MiscController.daily_limit, F.data == 'mc:daily' )
     router.callback_query.register( DownloadsController.download_cancel, F.data.startswith('cancel_task:') )
     router.callback_query.register( WindowDownloadsController.window_download_cancel, F.data=='wdc:cancel' )
@@ -94,6 +121,11 @@ async def register_bot_handlers() -> None:
     router.callback_query.register( InlineDownloadsController.inline_download_setup_auth, F.data=='idc:auth' )
     router.callback_query.register( InlineDownloadsController.inline_download_setup_auth_apply, F.data.startswith('idc:auth:') )
     router.callback_query.register( InlineDownloadsController.inline_download_setup_paging, F.data=='idc:paging' )
+    router.callback_query.register( InlineDownloadsController.inline_download_setup_proxy, F.data=='idc:proxy' )
+    router.callback_query.register( InlineDownloadsController.inline_download_setup_proxy_empty, F.data=='idc:proxy:empty' )
+    router.callback_query.register( InlineDownloadsController.inline_download_setup_proxy_cancel, F.data=='idc:proxy:cancel' )
+    router.callback_query.register( InlineDownloadsController.inline_download_setup_hashtags, F.data=='idc:hashtags' )
+    router.callback_query.register( InlineDownloadsController.inline_download_setup_hashtags_apply, F.data.startswith('idc:hashtags:') )
     router.callback_query.register( AuthController.auth_cancel, F.data=='auth:cancel' )
     router.callback_query.register( AuthController.auth_setup_site, F.data.startswith('auth:') )
     router.callback_query.register( WindowAuthController.window_auth_cancel, F.data=='wac:cancel' )
@@ -103,6 +135,8 @@ async def register_bot_handlers() -> None:
     router.callback_query.register( AdminController.admin_queue_close, F.data == 'aq:close' )
     router.callback_query.register( AdminController.admin_queue_refresh, F.data == 'aq:refresh' )
     router.callback_query.register( AdminController.admin_queue_cancel, F.data.startswith('aq:cancel:') )
+
+    router.callback_query.register( dumper )
 
     DP.include_router( router )
 

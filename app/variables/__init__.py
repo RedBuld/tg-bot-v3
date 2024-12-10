@@ -4,6 +4,9 @@ from dataclasses import dataclass
 from .states import *
 from .global_config import *
 
+class UpdateDBError(Exception):
+    pass
+
 @dataclass(frozen=True)
 class DownloaderStep():
     CANCELLED: int = 99

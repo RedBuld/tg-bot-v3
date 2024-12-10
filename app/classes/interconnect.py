@@ -71,7 +71,7 @@ class Interconnect:
         return model.sites
 
     @staticmethod
-    async def GetSiteData( site_name: str ) -> tuple[ bool, List[ str ], Dict[ str, List[ str ] ] ] | str:
+    async def GetSiteData( site_name: str ) -> schemas.SiteCheckResponse:
         cache_key = f"cache_sites_data_{site_name}"
         model = schemas.SiteCheckResponse
         cached = await RD.get(cache_key)
@@ -96,7 +96,7 @@ class Interconnect:
         else:
             model = model.model_validate_json( cached )
 
-        return model.allowed, model.parameters, model.formats
+        return model
 
     @staticmethod
     async def GetUsage(use_cache: bool = True) -> Dict[ str, Any ]:

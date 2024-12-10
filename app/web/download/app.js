@@ -73,6 +73,7 @@ Telegram.WebApp.onEvent('mainButtonClicked', function(){
       'user_id': payload['user_id'],
       'chat_id': payload['chat_id'],
       'message_id': payload['message_id'],
+      'filename': payload['filename'],
    };
    
    for(var pair of formData.entries())
@@ -100,6 +101,16 @@ Telegram.WebApp.onEvent('mainButtonClicked', function(){
    if( 'auth' in temp )
    {
       form['auth'] = temp['auth'];
+   }
+
+   if( 'proxy' in temp )
+   {
+      form['proxy'] = temp['proxy'];
+   }
+
+   if( 'hashtags' in temp )
+   {
+      form['hashtags'] = temp['hashtags'];
    }
 
    if( 'images' in temp )
