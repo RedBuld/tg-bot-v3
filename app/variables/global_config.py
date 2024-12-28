@@ -34,7 +34,7 @@ class GlobalConfig():
 
         url = os.environ.get('URL')
         if url:
-            self.url = bytes(url, encoding='utf-8')
+            self.url = url
 
 
         encrypt_key = os.environ.get('ENCRYPT_KEY')
