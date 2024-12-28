@@ -67,6 +67,9 @@ body {
 #queue_stats table a {
 	color: var(--tg-theme-link-color);
 }
+#queue_stats table .watch td {
+	background: #ffff00;
+}
 #queue_stats table td {
 	color: var(--tg-theme-text-color);
 	word-break: break-all;

@@ -20,6 +20,13 @@ class DownloaderStep():
 
 
 @dataclass(frozen=True)
+class SiteAllowed():
+    NO: int = 0
+    YES: int = 1
+    AUTHED: int = 2
+
+
+@dataclass(frozen=True)
 class InteractionModes():
     inline: str = "В чате"
     windowed: str = "Отдельные окна"

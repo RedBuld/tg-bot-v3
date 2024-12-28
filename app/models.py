@@ -1,9 +1,12 @@
+from typing import Self
 from datetime import datetime
 from sqlalchemy import Integer, BigInteger, Boolean, String, Text, UniqueConstraint, Date, DateTime, ForeignKey
 from sqlalchemy.orm import mapped_column
 from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import Mapped
 from sqlalchemy.dialects.mysql import ENUM
+
+from app import dto
 
 Base = declarative_base()
 
@@ -54,16 +57,17 @@ class InlineDownloadRequest(Base):
     __tablename__ = 'inline_download_requests'
 
     id: Mapped[int] =              mapped_column( 'id', BigInteger, primary_key=True )
-    bot_id: Mapped[str] =          mapped_column( 'bot_id', String(5), nullable=False, index=True )
     user_id: Mapped[int] =         mapped_column( 'user_id', BigInteger, nullable=False, index=True )
     chat_id: Mapped[int] =         mapped_column( 'chat_id', BigInteger, nullable=False, index=True )
     message_id: Mapped[int] =      mapped_column( 'message_id', BigInteger, nullable=True, index=True )
+    setup_mode: Mapped[int] =      mapped_column( 'setup_mode', Integer, default=0)
     # 
     use_paging: Mapped[bool] =     mapped_column( 'use_paging', Boolean, default=False )
     use_auth: Mapped[bool] =       mapped_column( 'use_auth', Boolean, default=False )
     use_images: Mapped[bool] =     mapped_column( 'use_images', Boolean, default=False )
     use_cover: Mapped[bool] =      mapped_column( 'use_cover', Boolean, default=False )
     force_images: Mapped[bool] =   mapped_column( 'force_images', Boolean, default=False )
+    force_auth: Mapped[bool] =     mapped_column( 'force_auth', Boolean, default=False )
     # 
     link: Mapped[str] =            mapped_column( 'link', Text, default='')
     site: Mapped[str] =            mapped_column( 'site', Text, default='')
@@ -76,9 +80,10 @@ class InlineDownloadRequest(Base):
     cover: Mapped[bool] =          mapped_column( 'cover', Boolean, default=True )
     proxy: Mapped[str] =           mapped_column( 'proxy', Text, nullable=True )
     hashtags: Mapped[str] =        mapped_column( 'hashtags', String(10), default='no' )
-    filename: Mapped[str] =        mapped_column( 'filename', nullable=True )
+    filename: Mapped[str] =        mapped_column( 'filename', Text, nullable=True )
     #
     created: Mapped[datetime] =    mapped_column( 'created', DateTime, default=datetime.now )
+
 
 class ACL(Base):
     __tablename__ = 'acl'

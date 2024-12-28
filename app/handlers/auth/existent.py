@@ -5,7 +5,7 @@ from aiogram import Dispatcher, Router, F, types
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.utils.keyboard import InlineKeyboardBuilder
-from app import variables, schemas, models
+from app import variables, dto, models
 from app.configs import GC
 from app.objects import DB, RD, BOT
 
@@ -14,7 +14,7 @@ logger = logging.getLogger( __name__ )
 class ExistentAuthController:
 
     @staticmethod
-    async def existent_auth_cancel( callback_query: types.CallbackQuery ):
+    async def Cancel( callback_query: types.CallbackQuery ):
         await callback_query.answer()
 
         try:
@@ -23,10 +23,10 @@ class ExistentAuthController:
             pass
     
     @staticmethod
-    async def existent_auths( message: types.Message ):
+    async def ListAuthedSites( message: types.Message ):
         user_id = message.from_user.id
 
-        sites = await DB.getUserAuthedSites( user_id )
+        sites = await DB.GetUserAuthedSites( user_id )
 
         if sites:
             builder = InlineKeyboardBuilder()
@@ -45,7 +45,7 @@ class ExistentAuthController:
 
 
     @staticmethod
-    async def existent_auths_map( callback_query: types.CallbackQuery ) -> None:
+    async def AuthActions( callback_query: types.CallbackQuery ) -> None:
         await callback_query.answer()
 
         user_id = callback_query.from_user.id
@@ -71,14 +71,14 @@ class ExistentAuthController:
             auth_id = int(data[2])
             action = data[3]
             if action == 'delete':
-                await DB.deleteUserAuth( user_id=user_id, auth_id=auth_id )
+                await DB.DeleteUserAuth( user_id=user_id, auth_id=auth_id )
                 await ExistentAuthController.__all_site_logins( user_id=user_id, chat_id=chat_id, message_id=message_id, site=site )
 
     #
 
     @staticmethod
     async def __all_sites( user_id: int, chat_id: int, message_id: int ) -> None:
-        sites = await DB.getUserAuthedSites( user_id )
+        sites = await DB.GetUserAuthedSites( user_id )
 
         if sites:
             builder = InlineKeyboardBuilder()
@@ -99,7 +99,7 @@ class ExistentAuthController:
     @staticmethod
     async def __all_site_logins( user_id: int, chat_id: int, message_id: int, site: str ) -> None:
 
-        uas = await DB.getUserAuthsForSite( user_id=user_id, site=site )
+        uas = await DB.GetUserAuthsForSite( user_id=user_id, site=site )
 
         builder = InlineKeyboardBuilder()
         text = ''
@@ -120,7 +120,7 @@ class ExistentAuthController:
     @staticmethod
     async def __single_site_login( user_id: int, chat_id: int, message_id: int, site: str, auth_id: int ) -> None:
 
-        ua = await DB.getUserAuth( user_id=user_id, auth_id=auth_id )
+        ua = await DB.GetUserAuth( user_id=user_id, auth_id=auth_id )
 
         if ua:
             builder = InlineKeyboardBuilder()

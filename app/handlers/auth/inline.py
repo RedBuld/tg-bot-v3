@@ -5,7 +5,7 @@ from typing import Any
 from aiogram import types
 from aiogram.fsm.context import FSMContext
 from aiogram.utils.keyboard import InlineKeyboardBuilder
-from app import variables, schemas, models
+from app import variables, dto, models
 from app.configs import GC
 from app.objects import DB, RD, BOT
 
@@ -14,7 +14,7 @@ logger = logging.getLogger( __name__ )
 class InlineAuthController:
 
     @staticmethod
-    async def init( callback_query: types.CallbackQuery, user: models.User, site: str, state: FSMContext ) -> None:
+    async def startAuthForSite( callback_query: types.CallbackQuery, user: models.User, site: str, state: FSMContext ) -> None:
         await state.set_state(variables.AuthForm.login)
 
         builder = InlineKeyboardBuilder()
@@ -26,14 +26,15 @@ class InlineAuthController:
         msg = await BOT.send_message( chat_id=callback_query.message.chat.id, text=f'Отправьте сообщением логин')
         await state.update_data(last_message=msg.message_id)
 
+
     @staticmethod
-    async def inline_auth_login( message: types.Message, state: FSMContext ) -> None:
+    async def HandleLogin( message: types.Message, state: FSMContext ) -> None:
 
         login = message.text.strip()
 
         await BOT.delete_message( chat_id=message.chat.id, message_id=message.message_id )
 
-        if not login.startswith('/') and not login.startswith('http:') and not login.startswith('https:'):
+        if not login.startswith('http:') and not login.startswith('https:'):
 
             await state.update_data(login=login)
         
@@ -45,14 +46,15 @@ class InlineAuthController:
             msg = await BOT.send_message( chat_id=message.chat.id, text=f'Отправьте сообщением пароль' )
             await state.update_data(last_message=msg.message_id)
 
+
     @staticmethod
-    async def inline_auth_password( message: types.Message, state: FSMContext ) -> None:
+    async def HandlePassword( message: types.Message, state: FSMContext ) -> None:
 
         password = message.text #.strip()
 
         await BOT.delete_message( chat_id=message.chat.id, message_id=message.message_id )
 
-        if not password.startswith('/') and not password.startswith('http:') and not password.startswith('https:'):
+        if not password.startswith('http:') and not password.startswith('https:'):
 
             await state.update_data(password=password)
         
@@ -73,6 +75,6 @@ class InlineAuthController:
                 except:
                     pass
 
-            await DB.saveUserAuth( user_id=message.from_user.id, site=auth['site'], login=auth['login'], password=auth['password'] )
+            await DB.SaveUserAuth( user_id=message.from_user.id, site=auth['site'], login=auth['login'], password=auth['password'] )
 
             await BOT.send_message( chat_id=message.chat.id, text=f'Авторизация для сайта {auth["site"]} сохранена', reply_markup=None)

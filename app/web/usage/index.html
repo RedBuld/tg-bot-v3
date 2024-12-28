@@ -8,6 +8,11 @@
 	<script src="/web/usage/app.js?v=2" defer></script>
 </head>
 <body>
+    {% if request.query_params['task'] %}
+    {% set task_id = request.query_params['task']|int %}
+    {% else %}
+    {% set task_id = 0 %}
+    {% endif %}
     {% if request.query_params['test'] %}
     <pre>{{ stats['stats']|pretty_json }}</pre>
     {% endif %}
@@ -29,9 +34,9 @@
                 </thead>
                 <tbody>
                     {% for task in group['tasks'] %}
-                    <tr>
+                    <tr task_id="{{ task['task_id'] }}" {% if task['task_id'] == tasktask_id %}class="watch"{% endif %}>
                         <td><a target="_blank" href="{{ task['request']['url']|hideui }}">{{ task['request']['site']|punydecode }}{% if task['request']['proxy'] %} [Proxied]{% endif %}</a></td>
-                        <td>{{ task['last_status'] }}</td>
+                        <td>{{ task['status'] }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -58,7 +63,7 @@
             </thead>
             <tbody>
                 {% for task in group['tasks'] %}
-                <tr>
+                <tr task_id="{{ task['task_id'] }}" {% if task['task_id'] == tasktask_id %}class="watch"{% endif %}>
                     {# <td><a target="_blank" href="{{ task['request']['url']|hideui }}">{{ task['request']['site']|punydecode }}</a></td> #}
                     <td><a target="_blank" href="{{ task['request']['url']|hideui }}">{{ task['request']['url']|hideui }}</a></td>
                 </tr>

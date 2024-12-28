@@ -6,7 +6,7 @@
 	<link rel="stylesheet" href="/web/download/app.css?v=2">
 	<script src="https://telegram.org/js/telegram-web-app.js" defer></script>
 	<script>window.payload={{payload|tojson}};</script>
-	<script src="/web/download/app.js?v=8" defer></script>
+	<script src="/web/download/app.js?v=8.1" defer></script>
 </head>
 <body>
 	{% if not payload %}
@@ -81,21 +81,21 @@
 				<input class="input" type="radio" id="hashtags_no" value="no" name="hashtags" {% if payload['hashtags'] == 'no' %}checked{% endif %}>
 				<div class="slider"></div>
 			</label>
-			<label for="cover" class="label">Хэштэги: нет</label>
+			<label for="hashtags_no" class="label">Хэштэги: нет</label>
 		</div>
 		<div class="form-row checkbox">
 			<label class="switch">
 				<input class="input" type="radio" id="hashtags_bf" value="bf" name="hashtags" {% if payload['hashtags'] == 'bf' %}checked{% endif %}>
 				<div class="slider"></div>
 			</label>
-			<label for="cover" class="label">Хэштэги: BooksFine</label>
+			<label for="hashtags_bf" class="label">Хэштэги: BooksFine</label>
 		</div>
 		<div class="form-row checkbox">
 			<label class="switch">
 				<input class="input" type="radio" id="hashtags_gf" value="gf" name="hashtags" {% if payload['hashtags'] == 'gf' %}checked{% endif %}>
 				<div class="slider"></div>
 			</label>
-			<label for="cover" class="label">Хэштэги: Цокольный этаж</label>
+			<label for="hashtags_gf" class="label">Хэштэги: Цокольный этаж</label>
 		</div>
 		<div class="settings-item-description">
 			<hr>

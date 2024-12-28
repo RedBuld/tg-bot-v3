@@ -1,5 +1,6 @@
 import os
 import asyncio
+setattr(asyncio.sslproto._SSLProtocolTransport, "_start_tls_compatible", True)
 import logging
 from dotenv import load_dotenv
 from contextlib import asynccontextmanager
@@ -52,8 +53,8 @@ async def base_error_exception_handler( request: Request, exc: Exception ):
 ####
 
 async def read_config():
-    await GC.updateConfig()
-    await DB.updateConfig()
+    await GC.UpdateConfig()
+    await DB.UpdateConfig()
 
 async def db_start() -> None:
     await DB.Start()
@@ -62,11 +63,11 @@ async def db_stop() -> None:
     await DB.Stop()
 
 async def bot_start() -> None:
-    if BOT and GC.bot_host:
-        await BOT.set_webhook( GC.bot_host, drop_pending_updates=False )
+    if BOT and GC.url:
+        await BOT.set_webhook( GC.url, drop_pending_updates=False )
 
 async def bot_stop() -> None:
-    if BOT and GC.bot_host:
+    if BOT and GC.url:
         await BOT.delete_webhook()
         await BOT.session.close()
 
@@ -97,7 +98,7 @@ async def init(app: FastAPI) -> None:
     await register_bot_handlers()
     await register_api_handlers(app)
 
-    if GC.bot_host:
+    if GC.url:
         asyncio.create_task( register_web_part(app) )
     else:
         asyncio.create_task( register_poller_part() )

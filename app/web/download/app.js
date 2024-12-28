@@ -137,7 +137,7 @@ Telegram.WebApp.onEvent('mainButtonClicked', function(){
          console.log(JSON.parse(xhr.responseText));
          Telegram.WebApp.close();
       } else {
-         alert(`Error: ${xhr.status}`);
+         alert(`Error: ${xhr.responseText}`);
          tg.MainButton.enable();
       }
    };

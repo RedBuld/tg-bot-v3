@@ -1,11 +1,6 @@
 {
-    "bot_id": "dev",
-	"redis_server": "redis://127.0.0.1:6379/1",
-	"local_server": "http://localhost:4041",
-    "queue_host": "http://127.0.0.1:8030/",
-    "encrypt_key": "fiBL_VPMpCfGmpcjYZKqcwGzvyXFcWXccFRI4nKErHw=",
-    "free_limit": 100,
-	"admins": [470328529],
+	"admins": [],
+	"proxies": [],
     "formats": {
 		"fb2": "Fb2 - для книг",
 		"mp3": "mp3 - для аудиокниг",
@@ -17,48 +12,8 @@
         "manga": "Манга",
         "ranobe": "Ранобэ",
         "audiobooks": "Аудиокниги",
-        "pdf": "PDF-книги"
+        "pdf": "PDF-книги",
+        "wattpad": "Wattpad"
     },
-    "demo": {
-		"author.today": {
-			"login":"elib.fb2.bot@gmail.com",
-			"password":"elib.fb2.bot123"
-		},
-		"booknet.com": {
-			"login":"elib.fb2.bot@gmail.com",
-			"password":"elib.fb2.bot123"
-		},
-		"booknet.ua": {
-			"login":"elib.fb2.bot@gmail.com",
-			"password":"elib.fb2.bot123"
-		},
-		"litres.ru": {
-			"login":"elib.fb2.bot@gmail.com",
-			"password":"elib.fb2.bot123"
-		},
-		"litnet.com": {
-			"login":"elib.fb2.bot@gmail.com",
-			"password":"elib.fb2.bot123"
-		},
-		"litgorod.ru": {
-			"login":"elib.fb2.bot@gmail.com",
-			"password":"elib.fb2.bot123"
-		},
-		"ranobelib.me": {
-			"login":"elib.fb2.bot@gmail.com",
-			"password":"elib.fb2.bot123"
-		},
-		"test-front.mangalib.me": {
-			"login":"elib.fb2.bot@gmail.com",
-			"password":"elib.fb2.bot123"
-		},
-		"mangalib.me": {
-			"login":"elib.fb2.bot@gmail.com",
-			"password":"elib.fb2.bot123"
-		},
-		"hentailib.me": {
-			"login":"elib.fb2.bot@gmail.com",
-			"password":"elib.fb2.bot123"
-		}
-	}
+    "demo": {}
 }
