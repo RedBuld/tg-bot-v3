@@ -95,6 +95,8 @@ async def register_bot_handlers() -> None:
     router.message.register(        MiscController.GetMyUID, Command( 'uid' ) )
     router.message.register(        MiscController.StatsMenu, Command( 'stats' ) )
     router.callback_query.register( MiscController.DailyLimit, F.data == 'mc:daily' )
+    router.message.register(        MiscController.Panic, Command( 'panic' ) )
+    router.callback_query.register( MiscController.PanicReset, F.data == 'panic:reset' )
 
 
     # Auths
@@ -115,6 +117,12 @@ async def register_bot_handlers() -> None:
     router.message.register(        AdminController.CancelTasks, Command( 'admin_cancel_batch' ) )
     router.message.register(        AdminController.ReloadDownloadCenter, Command( 'admin_reload_dc' ) )
     router.message.register(        AdminController.ReloadBot, Command( 'admin_reload_bot' ) )
+    router.message.register(        AdminController.StopTasks, Command( 'admin_stop_tasks' ) )
+    router.message.register(        AdminController.StartTasks, Command( 'admin_start_tasks' ) )
+    router.message.register(        AdminController.StopResults, Command( 'admin_stop_results' ) )
+    router.message.register(        AdminController.StartResults, Command( 'admin_start_results' ) )
+    router.message.register(        AdminController.StopQueue, Command( 'admin_stop_queue' ) )
+    router.message.register(        AdminController.StartQueue, Command( 'admin_start_queue' ) )
     router.message.register(        AdminController.LeaveChat, Command( 'admin_leave' ) )
     # router.message.register( AdminController.Queue, Command( 'admin_queue' ) )
     # router.callback_query.register( AdminController.admin_queue_pass, F.data == 'aq:pass' )

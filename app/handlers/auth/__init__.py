@@ -37,8 +37,6 @@ class AuthController:
 
             builder.adjust( 1, repeat=True )
 
-            await state.set_state( variables.AuthForm.site )
-
             msg = await BOT.send_message( chat_id=message.chat.id, text="Выберите сайт", reply_markup=builder.as_markup() )
             await state.update_data( base_message=msg.message_id )
         else:
@@ -50,16 +48,17 @@ class AuthController:
     async def CancelAuth( callback_query: types.CallbackQuery, state: FSMContext ):
         await callback_query.answer()
 
-        active_state = await state.get_data()
+        state_data = await state.get_data()
+        active_state = await state.get_state()
         if active_state and active_state.startswith( 'AuthForm' ):
-            if 'base_message' in active_state and active_state[ 'base_message' ]:    
+            if 'base_message' in state_data and state_data[ 'base_message' ]:    
                 try:
-                    await BOT.delete_message( chat_id=callback_query.message.chat.id, message_id=active_state[ 'base_message' ] )
+                    await BOT.delete_message( chat_id=callback_query.message.chat.id, message_id=state_data[ 'base_message' ] )
                 except:
                     pass
-            if 'last_message' in active_state and active_state[ 'last_message' ]:
+            if 'last_message' in state_data and state_data[ 'last_message' ]:
                 try:
-                    await BOT.delete_message( chat_id=callback_query.message.chat.id, message_id=active_state[ 'last_message' ] )
+                    await BOT.delete_message( chat_id=callback_query.message.chat.id, message_id=state_data[ 'last_message' ] )
                 except:
                     pass
             await state.clear()
@@ -83,6 +82,7 @@ class AuthController:
             return
 
         if user.interact_mode == 0 or not GC.url:
+            await state.set_state( variables.AuthForm.site )
             await state.update_data( site=site )
             await InlineAuthController.startAuthForSite( callback_query, user, site, state )
             return

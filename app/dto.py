@@ -15,14 +15,6 @@ class AuthSetupRequest(BaseModel):
 class SiteCheckRequest(BaseModel):
     site:       str
 
-class SiteCheckResponse(BaseModel):
-    allowed:    bool = False
-    parameters: List[ str ] = []
-    formats:    Dict[ str, List[ str ] ] = {}
-
-class SiteListResponse(BaseModel):
-    sites:      List[ str ] = []
-
 class DownloadSetupRequest(BaseModel):
     user_id:    int
     chat_id:    int
@@ -64,14 +56,32 @@ class DownloadRequest(BaseModel):
 class DownloadCancelRequest(BaseModel):
     task_id:    int
 
+class DownloadClearRequest(BaseModel):
+    task_id:    int
+
+class DownloadLogRequest(BaseModel):
+    task_id:    int
+
+#
+
+class SiteCheckResponse(BaseModel):
+    allowed:    bool = False
+    parameters: List[ str ] = []
+    formats:    Dict[ str, List[ str ] ] = {}
+
+class SitesListResponse(BaseModel):
+    sites:      List[ str ] = []
+
+class GroupedSitesResponse(BaseModel):
+    groups: Dict[ str, List[ str ] ] = {}
+
 class DownloadCancelResponse(BaseModel):
     user_id:    int
     web_id:     str | None = None
     chat_id:    int
     message_id: int
 
-class DownloadClearRequest(BaseModel):
-    task_id:    int
+#
 
 class DownloadResult(BaseModel):
     task_id:    int
@@ -99,3 +109,7 @@ class DownloadStatus(BaseModel):
     message_id: int
     text:       str
     status:     int
+
+class DownloadLogs(BaseModel):
+    log:       str | None = None
+    config:    str | None = None

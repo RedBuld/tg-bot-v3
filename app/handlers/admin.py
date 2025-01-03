@@ -23,7 +23,8 @@ class AdminController:
             types.BotCommand( command='auth', description='Добавить авторизацию' ),
             types.BotCommand( command='setup_global', description='Настройки аккаунта' ),
             types.BotCommand( command='setup_sites', description='Настройки для сайтов' ),
-            types.BotCommand( command='stats', description='Статистика' )
+            types.BotCommand( command='panic', description='Паника' ),
+            types.BotCommand( command='stats', description='Статистика' ),
         ]
 
         await BOT.set_my_commands(commands=commands, scope=types.BotCommandScopeDefault())
@@ -31,6 +32,12 @@ class AdminController:
         commands.append( types.BotCommand( command='admin_reload_dc', description='Перезагрузка конфигурации DC' ) )
         commands.append( types.BotCommand( command='admin_reload_bot', description='Перезагрузка конфигурации бота' ) )
         commands.append( types.BotCommand( command='admin_queue', description='Очередь' ) )
+        commands.append( types.BotCommand( command='admin_stop_tasks', description='Стоп очереди тасков' ) )
+        commands.append( types.BotCommand( command='admin_start_tasks', description='Старт очереди тасков' ) )
+        commands.append( types.BotCommand( command='admin_stop_results', description='Стоп очереди результатов' ) )
+        commands.append( types.BotCommand( command='admin_start_results', description='Старт очереди результатов' ) )
+        commands.append( types.BotCommand( command='admin_stop_queue', description='Стоп очереди' ) )
+        commands.append( types.BotCommand( command='admin_start_queue', description='Старт очереди' ) )
 
         for admin_id in GC.admins:
             try:
@@ -136,105 +143,38 @@ class AdminController:
 
         await BOT.leave_chat( chat_id=chat_id )
 
-        
-    # @staticmethod
-    # async def Queue( message: types.Message ) -> None:
-        
-    #     message = await BOT.send_message( chat_id=message.chat.id, text='Очередь', disable_web_page_preview=True )
 
-    #     await AdminController.__update_queue_inline(message)
+    @staticmethod
+    async def StopTasks( message: types.Message ) -> None:
+        await Interconnect.AdminStopTasks()
+        pass
 
 
-    # @staticmethod
-    # async def admin_queue_pass( callback_query: types.CallbackQuery ) -> None:
-    #     await callback_query.answer()
+    @staticmethod
+    async def StartTasks( message: types.Message ) -> None:
+        await Interconnect.AdminStartTasks()
+        pass
 
 
-    # @staticmethod
-    # async def admin_queue_close( callback_query: types.CallbackQuery ) -> None:
-    #     await callback_query.answer()
-
-    #     try:
-    #         await BOT.delete_message( chat_id=callback_query.message.chat.id, message_id=callback_query.message.message_id )
-    #     except:
-    #         pass
-
-    # @staticmethod
-    # async def admin_queue_refresh( callback_query: types.CallbackQuery ) -> None:
-    #     await callback_query.answer()
-
-    #     await AdminController.__update_queue_inline(callback_query.message)
-
-    # @staticmethod
-    # async def admin_queue_cancel( callback_query: types.CallbackQuery ) -> None:
-    #     await callback_query.answer()
-
-    #     task_id = int( callback_query.data.split('aq:cancel:')[1] )
-
-    #     request = dto.DownloadCancelRequest(
-    #         task_id = int( task_id )
-    #     )
-
-    #     result = await Interconnect.CancelDownload( request )
-    #     if type(result) == str:
-    #         try:
-    #             await BOT.send_message( chat_id=callback_query.message.chat.id, text=str(result) )
-    #         except:
-    #             pass
-    #     else:
-    #         try:
-    #             await BOT.delete_message( chat_id=result.chat_id, message_id=result.message_id )
-    #         except:
-    #             await BOT.send_message( chat_id=callback_query.message.chat.id, reply_to_message_id=callback_query.message.message_id, text="Ошибка: Не могу удалить сообщение" )
-
-    #     await AdminController.__update_queue_inline(callback_query.message)
+    @staticmethod
+    async def StopResults( message: types.Message ) -> None:
+        await Interconnect.AdminStopResults()
+        pass
 
 
-    # @staticmethod
-    # async def __update_queue_inline( message: types.Message ) -> None:
+    @staticmethod
+    async def StartResults( message: types.Message ) -> None:
+        await Interconnect.AdminStartResults()
+        pass
 
-    #     tasks = await Interconnect.GetUsage()
 
-    #     builder = InlineKeyboardBuilder()
-        
-    #     builder.button( text="Закрыть", callback_data="aq:close" )
-    #     builder.button( text="Обновить", callback_data="aq:refresh" )
+    @staticmethod
+    async def StopQueue( message: types.Message ) -> None:
+        await Interconnect.AdminStopQueue()
+        pass
 
-    #     builder.button( text="Загружаются", callback_data="aq:pass" )
-    #     builder.button( text='', callback_data="aq:pass" )
-    #     for group in tasks['running']:
-    #         for task in group['tasks']:
-    #             builder.button( text=task['last_status'], callback_data="aq:pass" )
-    #             builder.button( text='', callback_data="aq:pass" )
-    #             # 
-    #             builder.button( text=task['request']['url'], url=task['request']['url'] )
-    #             builder.button( text='🚫', callback_data=f"aq:cancel:{task['task_id']}" )
 
-    #     builder.button( text="Ждут", callback_data="aq:pass" )
-    #     builder.button( text='', callback_data="aq:pass" )
-    #     for group in tasks['waiting']:
-    #         for task in group['tasks']:
-    #             builder.button( text=task['request']['url'], url=task['request']['url'] )
-    #             builder.button( text='🚫', callback_data=f"aq:cancel:{task['task_id']}" )
-        
-    #     builder.adjust( 2, repeat=True )
-
-    #     try:
-    #         await BOT.edit_message_text( chat_id=message.chat.id, text='Очередь', message_id=message.message_id, disable_web_page_preview=True, reply_markup=builder.as_markup() )
-    #     except TelegramBadRequest as e:
-    #         if 'message to edit not foun' in str(e):
-    #             _ignore = True
-    #         if 'message is not modified' in str(e):
-    #             _ignore = True
-    #         if 'chat not found' in str(e):
-    #             _ignore = True
-    #         if 'web App buttons' in str(e):
-    #             _ignore = True
-    #         if 'not enough rights' in str(e):
-    #             _ignore = True
-    #         pass
-    #         if not _ignore:
-    #             traceback.print_exc()
-    #     except:
-    #         traceback.print_exc()
-    #     return True
+    @staticmethod
+    async def StartQueue( message: types.Message ) -> None:
+        await Interconnect.AdminStartQueue()
+        pass

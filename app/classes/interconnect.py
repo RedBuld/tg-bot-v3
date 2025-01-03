@@ -18,9 +18,9 @@ logger = logging.getLogger(__name__)
 class Interconnect:
 
     @staticmethod
-    async def GetSitesActive() -> List[ str ] | str:
+    async def GetSitesActive() -> List[ str ]:
         cache_key = variables.ACTIVE_SITES_CACHE_KEY
-        model = dto.SiteListResponse()
+        model = dto.SitesListResponse()
         cached = await RD.get( cache_key )
 
         if not cached:
@@ -46,9 +46,37 @@ class Interconnect:
         return model.sites
 
     @staticmethod
+    async def GetSitesActiveGrouped() -> Dict[ str, List[ str ] ]:
+        cache_key = variables.ACTIVE_SITES_CACHE_KEY
+        model = dto.GroupedSitesResponse()
+        cached = await RD.get( cache_key )
+
+        if not cached:
+            _attempts = 0
+            while _attempts < 5:
+                try:
+                    async with aiohttp.ClientSession( json_serialize=ujson.dumps ) as session:
+                        async with session.post( GC.queue_host + 'sites/active_grouped', verify_ssl=False ) as response:
+                            if response.status == 200:
+                                data = await response.json( loads=ujson.loads )
+                                model = model.model_validate( data )
+                                _attempts = 5
+                except:
+                    traceback.print_exc()
+                    _attempts+=1
+                    await asyncio.sleep(5)
+
+            cached = model.model_dump_json()
+            await RD.setex( cache_key, 60, cached )
+        else:
+            model = model.model_validate_json( cached )
+
+        return model.groups
+
+    @staticmethod
     async def GetSitesWithAuth() -> List[ str ]:
         cache_key = variables.AUTH_SITES_CACHE_KEY
-        model = dto.SiteListResponse()
+        model = dto.SitesListResponse()
         cached = await RD.get( cache_key )
 
         if not cached:
@@ -225,6 +253,114 @@ class Interconnect:
             try:
                 async with aiohttp.ClientSession() as session:
                     async with session.get( GC.queue_host + 'update_config', verify_ssl=False ) as response:
+                        if response.status == 200:
+                            _attempts = 5
+                        else:
+                            _attempts+=1
+                            await asyncio.sleep(5)
+            except:
+                traceback.print_exc()
+                _attempts+=1
+                await asyncio.sleep(5)
+
+
+    @staticmethod
+    async def AdminStopTasks() -> None:
+        _attempts = 0
+        while _attempts < 5:
+            try:
+                async with aiohttp.ClientSession() as session:
+                    async with session.post( GC.queue_host + 'queue/stop/tasks', verify_ssl=False ) as response:
+                        if response.status == 200:
+                            _attempts = 5
+                        else:
+                            _attempts+=1
+                            await asyncio.sleep(5)
+            except:
+                traceback.print_exc()
+                _attempts+=1
+                await asyncio.sleep(5)
+
+
+    @staticmethod
+    async def AdminStartTasks() -> None:
+        _attempts = 0
+        while _attempts < 5:
+            try:
+                async with aiohttp.ClientSession() as session:
+                    async with session.post( GC.queue_host + 'queue/start/tasks', verify_ssl=False ) as response:
+                        if response.status == 200:
+                            _attempts = 5
+                        else:
+                            _attempts+=1
+                            await asyncio.sleep(5)
+            except:
+                traceback.print_exc()
+                _attempts+=1
+                await asyncio.sleep(5)
+
+
+    @staticmethod
+    async def AdminStopResults() -> None:
+        _attempts = 0
+        while _attempts < 5:
+            try:
+                async with aiohttp.ClientSession() as session:
+                    async with session.post( GC.queue_host + 'queue/stop/results', verify_ssl=False ) as response:
+                        if response.status == 200:
+                            _attempts = 5
+                        else:
+                            _attempts+=1
+                            await asyncio.sleep(5)
+            except:
+                traceback.print_exc()
+                _attempts+=1
+                await asyncio.sleep(5)
+
+
+    @staticmethod
+    async def AdminStartResults() -> None:
+        _attempts = 0
+        while _attempts < 5:
+            try:
+                async with aiohttp.ClientSession() as session:
+                    async with session.post( GC.queue_host + 'queue/start/results', verify_ssl=False ) as response:
+                        if response.status == 200:
+                            _attempts = 5
+                        else:
+                            _attempts+=1
+                            await asyncio.sleep(5)
+            except:
+                traceback.print_exc()
+                _attempts+=1
+                await asyncio.sleep(5)
+
+
+    @staticmethod
+    async def AdminStopQueue() -> None:
+        _attempts = 0
+        while _attempts < 5:
+            try:
+                async with aiohttp.ClientSession() as session:
+                    async with session.post( GC.queue_host + 'queue/stop', verify_ssl=False ) as response:
+                        if response.status == 200:
+                            _attempts = 5
+                        else:
+                            _attempts+=1
+                            await asyncio.sleep(5)
+            except:
+                traceback.print_exc()
+                _attempts+=1
+                await asyncio.sleep(5)
+
+
+    @staticmethod
+    async def AdminStartQueue() -> None:
+        _attempts = 0
+        while _attempts < 5:
+            try:
+                async with aiohttp.ClientSession() as session:
+                    async with session.post( GC.queue_host + 'queue/start', verify_ssl=False ) as response:
                         if response.status == 200:
                             _attempts = 5
                         else:
