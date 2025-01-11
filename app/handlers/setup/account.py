@@ -364,7 +364,7 @@ class AccountSetupController:
         if not user.setuped:
             await AccountSetupController.SelectImages( callback_query )
         else:
-            return await BOT.send_message( chat_id=callback_query.message.chat.id, text="Скачивание обложек по умолчанию: " + ('Да' if user.cover else 'Нет') )
+            return await BOT.send_message( chat_id=callback_query.message.chat.id, text="Добавлять превью ТГ по умолчанию: " + ('Да' if user.thumb else 'Нет') )
 
 
     ##
