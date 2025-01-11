@@ -5,6 +5,7 @@ import ujson
 from typing import List, Dict, Any
 
 class GlobalConfig():
+    dev_mode:     bool = False
     bot_host:     str = 'http://bot:8000/'
     queue_host:   str = 'http://queue:8010/'
     redis_server: str = 'redis://redis:6379/1'
@@ -21,11 +22,14 @@ class GlobalConfig():
     free_limit:   int = 100
     #
     mask:         re.Pattern = re.compile("https?:\\/\\/(www\\.|m\\.|ru\\.)*(?P<site>[^\\/]+)\\/.+")
-    proxy:        re.Pattern = re.compile("(https?|socks[4,5]):\\/\\/\d{1,3}\\.\d{1,3}\\.\d{1,3}\\.\d{1,3}:\d{2,5}\\/")
+    proxy:        re.Pattern = re.compile("(https?|socks[4,5]):\\/\\/\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}:\\d{2,5}\\/")
 
     def __init__( self ):
 
         # ENV based settings
+
+        dev_mode = os.environ.get('DEV_MODE', False)
+        self.dev_mode = dev_mode != False
 
         local_server = os.environ.get('LOCAL_SERVER')
         if local_server:

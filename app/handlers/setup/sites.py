@@ -224,6 +224,57 @@ class SitesSetupController:
 
 
     ##
+    ## THUMBNAIL
+    ##
+
+
+    @staticmethod
+    async def SelectThumbnail( callback_query: types.CallbackQuery ) -> None:
+        await callback_query.answer()
+
+        site = callback_query.data.split('setup_sites:select_thumb:')[1]
+
+        site_config = await SitesSetupController.getConfig( callback_query.from_user.id, site )
+
+        text = "Добавлять превью ТГ?"
+
+        builder = InlineKeyboardBuilder()
+        builder.button( text=f"{yesOrNo(site_config.thumb,None)} По умолчанию", callback_data=f'setup_sites:save_thumb:{site}:default')
+        builder.button( text=f"{yesOrNo(site_config.thumb,True)} Да", callback_data=f'setup_sites:save_thumb:{site}:yes')
+        builder.button( text=f"{yesOrNo(site_config.thumb,False)} Нет", callback_data=f'setup_sites:save_thumb:{site}:no')
+        builder.adjust( 1, repeat=True )
+
+        await BOT.edit_message_text( chat_id=callback_query.message.chat.id, message_id=callback_query.message.message_id, text=text, reply_markup=builder.as_markup() )
+
+
+    @staticmethod
+    async def SaveThumbnail( callback_query: types.CallbackQuery ) -> None:
+        await callback_query.answer()
+
+        data = callback_query.data.split('setup_sites:save_thumb:')[1]
+        site, _thumb = data.split(':')
+        
+        site_config = await SitesSetupController.getConfig( user_id=callback_query.from_user.id, site=site )
+
+        if not site_config:
+            return await BOT.send_message( chat_id=callback_query.message.chat.id, text="Ошибка соединения с БД. Попробуйте позднее" )
+
+        if _thumb == 'default':
+            site_config.thumb = None
+        elif _thumb == 'yes':
+            site_config.thumb = True
+        elif _thumb == 'no':
+            site_config.thumb = False
+
+        try:
+            site_config = await asyncio.wait_for( DB.SaveSiteConfig( site_config ), 5 )
+        except TimeoutError as e:
+            return await BOT.send_message( chat_id=callback_query.message.chat.id, text="Ошибка соединения с БД. Попробуйте позднее" )
+
+        await SitesSetupController.renderMenu( callback_query.message.chat.id, callback_query.message.message_id, site )
+
+
+    ##
     ## IMAGES
     ##
 
@@ -540,6 +591,7 @@ class SitesSetupController:
             builder.button( text="Авторизация", callback_data=f"setup_sites:select_auth:{site}" )
         builder.button( text="Формат", callback_data=f"setup_sites:select_format:{site}" )
         builder.button( text="Обложка", callback_data=f"setup_sites:select_cover:{site}" )
+        builder.button( text="Превью", callback_data=f"setup_sites:select_thumb:{site}" )
         if 'images' in site_data.parameters:
             builder.button( text="Изображения", callback_data=f"setup_sites:select_images:{site}" )
         builder.button( text="Хэштэги", callback_data=f"setup_sites:select_hashtags:{site}" )

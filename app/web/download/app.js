@@ -123,6 +123,11 @@ Telegram.WebApp.onEvent('mainButtonClicked', function(){
       form['cover'] = true;
    }
 
+   if( 'thumb' in temp )
+   {
+      form['thumb'] = true;
+   }
+
    if( 'force_images' in payload && payload['force_images'] )
    {
       form['images'] = true;

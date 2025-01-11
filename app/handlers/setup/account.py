@@ -71,6 +71,7 @@ class AccountSetupController:
         builder.button( text="Режим взаимодействия", callback_data="setup_global:mode" )
         builder.button( text="Формат", callback_data="setup_global:format" )
         builder.button( text="Обложка", callback_data="setup_global:cover" )
+        builder.button( text="Превью", callback_data="setup_global:thumb" )
         builder.button( text="Изображения", callback_data="setup_global:images" )
         builder.button( text="Хэштэги", callback_data="setup_global:hashtags" )
         builder.button( text="Название файла", callback_data="setup_global:filename" )
@@ -282,8 +283,6 @@ class AccountSetupController:
             return await BOT.send_message( chat_id=callback_query.message.chat.id, text="Ошибка соединения с БД. Попробуйте позднее" )
 
         if not user:
-            logger.info('cover_save')
-            logger.info(callback_query)
             return await BOT.send_message( chat_id=callback_query.message.chat.id, text="Ошибка: пользователь не найден, нажмите /start" )
 
         _cover = callback_query.data.split('setup_global:cover:')[1]
@@ -291,6 +290,71 @@ class AccountSetupController:
             user.cover = True
         if _cover == 'no':
             user.cover = False
+
+        try:
+            user = await asyncio.wait_for( DB.SaveUser(user), 5 )
+        except TimeoutError as e:
+            return await BOT.send_message( chat_id=callback_query.message.chat.id, text="Ошибка соединения с БД. Попробуйте позднее" )
+
+        if not user.setuped:
+            await AccountSetupController.SelectThumbnail( callback_query )
+        else:
+            return await BOT.send_message( chat_id=callback_query.message.chat.id, text="Скачивание обложек по умолчанию: " + ('Да' if user.cover else 'Нет') )
+
+
+    ##
+    ## THUMBNAIL
+    ##
+
+
+    @staticmethod
+    async def SelectThumbnail( callback_query: types.CallbackQuery ) -> None:
+        await callback_query.answer()
+
+        try:
+            await BOT.delete_message( chat_id=callback_query.message.chat.id, message_id=callback_query.message.message_id )
+        except:
+            pass
+        
+        try:
+            user = await asyncio.wait_for( DB.GetUser( callback_query.from_user.id ), 5 )
+        except TimeoutError as e:
+            return await BOT.send_message( chat_id=callback_query.message.chat.id, text="Ошибка соединения с БД. Попробуйте позднее" )
+        if not user:
+            return await BOT.send_message( chat_id=callback_query.message.chat.id, text="Ошибка: пользователь не найден, нажмите /start" )
+
+        text = "Добавлять превью ТГ (по умолчанию)?"
+
+        builder = InlineKeyboardBuilder()
+        builder.button( text="Да", callback_data='setup_global:thumb:yes')
+        builder.button( text="Нет", callback_data='setup_global:thumb:no')
+        builder.adjust(1, repeat=True)
+
+        await BOT.send_message( chat_id=callback_query.message.chat.id, text=text, reply_markup=builder.as_markup() )
+
+
+    @staticmethod
+    async def SaveThumbnail( callback_query: types.CallbackQuery ) -> None:
+        await callback_query.answer()
+
+        try:
+            await BOT.delete_message( chat_id=callback_query.message.chat.id, message_id=callback_query.message.message_id )
+        except:
+            pass
+        
+        try:
+            user = await asyncio.wait_for( DB.GetUser( callback_query.from_user.id ), 5 )
+        except TimeoutError as e:
+            return await BOT.send_message( chat_id=callback_query.message.chat.id, text="Ошибка соединения с БД. Попробуйте позднее" )
+
+        if not user:
+            return await BOT.send_message( chat_id=callback_query.message.chat.id, text="Ошибка: пользователь не найден, нажмите /start" )
+
+        _thumb = callback_query.data.split('setup_global:thumb:')[1]
+        if _thumb == 'yes':
+            user.thumb = True
+        if _thumb == 'no':
+            user.thumb = False
 
         try:
             user = await asyncio.wait_for( DB.SaveUser(user), 5 )

@@ -6,7 +6,7 @@
 	<link rel="stylesheet" href="/web/download/app.css?v=2">
 	<script src="https://telegram.org/js/telegram-web-app.js" defer></script>
 	<script>window.payload={{payload|tojson}};</script>
-	<script src="/web/download/app.js?v=8.1" defer></script>
+	<script src="/web/download/app.js?v=8.2" defer></script>
 </head>
 <body>
 	{% if not payload %}
@@ -62,6 +62,13 @@
 				<div class="slider"></div>
 			</label>
 			<label for="cover" class="label">Скачивать обложку</label>
+		</div>
+		<div class="form-row checkbox">
+			<label class="switch">
+				<input class="input" type="checkbox" id="thumb" value="1" name="thumb" {% if payload['thumb'] %}checked{% endif %}>
+				<div class="slider"></div>
+			</label>
+			<label for="thumb" class="label">Добавлять превью ТГ</label>
 		</div>
 		{% endif %}
 		{#  #}

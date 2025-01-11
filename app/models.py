@@ -19,6 +19,7 @@ class User(Base):
     ask_share: Mapped[bool] =      mapped_column( 'ask_share', Boolean, default=True )
     interact_mode: Mapped[int] =   mapped_column( 'interact_mode', Integer, default=0 )
     cover: Mapped[bool] =          mapped_column( 'cover', Boolean, default=True )
+    thumb: Mapped[bool] =          mapped_column( 'thumb', Boolean, default=True )
     images: Mapped[bool] =         mapped_column( 'images', Boolean, default=True )
     format: Mapped[str] =          mapped_column( 'format', String(20), default='fb2' )
     hashtags: Mapped[str] =        mapped_column( 'hashtags', String(5), default='no' )
@@ -78,6 +79,7 @@ class InlineDownloadRequest(Base):
     format: Mapped[str] =          mapped_column( 'format', Text, default='')
     images: Mapped[bool] =         mapped_column( 'images', Boolean, default=True )
     cover: Mapped[bool] =          mapped_column( 'cover', Boolean, default=True )
+    thumb: Mapped[bool] =          mapped_column( 'thumb', Boolean, default=True )
     proxy: Mapped[str] =           mapped_column( 'proxy', Text, nullable=True )
     hashtags: Mapped[str] =        mapped_column( 'hashtags', String(10), default='no' )
     filename: Mapped[str] =        mapped_column( 'filename', Text, nullable=True )
@@ -125,6 +127,7 @@ class SiteConfig(Base):
     site: Mapped[str] =            mapped_column( 'site', Text, default='')
     #
     cover: Mapped[bool] =          mapped_column( 'cover', Boolean, nullable=True )
+    thumb: Mapped[bool] =          mapped_column( 'thumb', Boolean, nullable=True )
     images: Mapped[bool] =         mapped_column( 'images', Boolean, nullable=True )
     auth: Mapped[str] =            mapped_column( 'auth', String(20), nullable=True )
     format: Mapped[str] =          mapped_column( 'format', String(20), nullable=True )
@@ -137,6 +140,7 @@ class SiteConfig(Base):
             'user_id': self.user_id,
             'site': self.site,
             'cover': self.cover,
+            'thumb': self.thumb,
             'images': self.images,
             'auth': self.auth,
             'format': self.format,
