@@ -58,6 +58,8 @@ async def register_bot_handlers() -> None:
     router.callback_query.register( AccountSetupController.SaveFormat, F.data.startswith('setup_global:format:') )
     router.callback_query.register( AccountSetupController.SelectCover, F.data=='setup_global:cover' )
     router.callback_query.register( AccountSetupController.SaveCover, F.data.startswith('setup_global:cover:') )
+    router.callback_query.register( AccountSetupController.SelectThumbnail, F.data=='setup_global:thumb' )
+    router.callback_query.register( AccountSetupController.SaveThumbnail, F.data.startswith('setup_global:thumb:') )
     router.callback_query.register( AccountSetupController.SelectImages, F.data=='setup_global:images' )
     router.callback_query.register( AccountSetupController.SaveImages, F.data.startswith('setup_global:images:') )
     router.callback_query.register( AccountSetupController.SelectHashtags, F.data=='setup_global:hashtags' )
