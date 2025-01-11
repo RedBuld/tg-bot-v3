@@ -1,17 +1,10 @@
 import os
 import asyncio
-setattr(asyncio.sslproto._SSLProtocolTransport, "_start_tls_compatible", True)
 import logging
-from dotenv import load_dotenv
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError, ResponseValidationError
-
-try:
-    load_dotenv(".env")
-except:
-    pass
 
 if not os.environ.get("BOT_TOKEN"):
     raise Exception('provide BOT_TOKEN in env')
@@ -24,8 +17,7 @@ from app.handlers import register_bot_handlers, register_api_handlers, register_
 ####
 
 logging.basicConfig(
-    # filename='/srv/tg-bot-v3/log.log',
-    format='\x1b[32m%(levelname)s\x1b[0m:     %(name)s[%(process)d] %(asctime)s - %(message)s',
+    format='%(levelname)s: %(name)s[%(process)d] - %(asctime)s - %(message)s',
     level=logging.INFO
 )
 logger = logging.getLogger(__name__)
